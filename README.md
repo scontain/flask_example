@@ -28,6 +28,17 @@ curl -X GET  ${URL}/patient/patient_3
 curl -X GET  ${URL}/score/patient_3
 ```
 
+The output might look as follows:
+
+```txt
+$ curl -X POST  -d "address=patient3 address"  localhost:4996/patient/patient_3
+{"address":"patient3 address","score":0.2781606437899131}
+$ curl -X GET  localhost:4996/patient/patient_3 
+{"address":"patient3 address","score":0.2781606437899131}
+$ curl -X GET  localhost:4996/score/patient_3 
+{"id":"patient_3","score":0.2781606437899131}
+```
+
 ## Execution of Kubernetes Cluster
 
 ### Install SCONE services
