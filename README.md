@@ -1,5 +1,13 @@
 # A simple flask example executed inside of an SGX enclave
 
+## Setup
+
+```bash
+git clone https://github.com/scontain/flask_example.git
+cd flask_example
+./create_image.sh
+```
+
 ## Install the Kubernetes Cluster
 
 Get access to `SconeApps` (see <https://sconedocs.github.io/helm/>):
