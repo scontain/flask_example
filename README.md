@@ -39,7 +39,7 @@ $ curl -X GET  localhost:4996/score/patient_3
 {"id":"patient_3","score":0.2781606437899131}
 ```
 
-## Execution of Kubernetes Cluster
+## Execution on a Kubernetes Cluster
 
 ### Install SCONE services
 
@@ -63,10 +63,44 @@ kubectl create secret docker-registry sconeapps --docker-server=index.docker.io/
 Start LAS and CAS service:
 
 ```bash
-helm install las sconeapps/las
+helm install las sconeapps/las --set service.hostPort=true
 helm install cas sconeapps/cas
 ```
 
 ### Run the application
 
+Start by creating a Docker image and setting its name. Remember to specify a repository to which you are allowed to push:
+
+```bash
+export IMAGE=sconecuratedimages/application:v0.3
+./create-image.sh
+source myenv
+```
+
+Use the Helm chart in `deploy/helm` to deploy the application to a Kubernetes cluster.
+
+```bash
+helm install api-v1 deploy/helm \
+   --set image=$IMAGE \
+   --set scone.cas=$SCONE_CAS_ADDR \
+   --set scone.api_session=$API_SESSION \
+   --set scone.redis_session=$REDIS_SESSION
+```
+
+After all resources are `Running`, you can test the API:
+
+```bash
+helm test api-v1
+```
+
+This will spawn a pod and make a few queries to the API.
+
+### Clean up
+
+```bash
+helm delete cas
+helm delete las
+helm delete api-v1
+kubectl delete pod api-v1-record-api-test-api
+```
 

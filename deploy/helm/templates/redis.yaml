@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "api-example.fullname" . }}-redis-master
+  labels:
+    app: {{ include "api-example.fullname" . }}-redis
+spec:
+  {{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+     {{- toYaml . | nindent 8 }}
+  {{- end }}
+  containers:
+    - name: master
+      image: {{ .Values.redis.image }}
+      env:
+        - name: MASTER
+          value: "true"
+      ports:
+        - name: redis
+          containerPort: 6379
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "api-example.fullname" . }}-redis
+spec:
+  ports:
+    - port: {{ .Values.redis.service.port }}
+      targetPort: redis
+  selector:
+    app: {{ include "api-example.fullname" . }}-redis

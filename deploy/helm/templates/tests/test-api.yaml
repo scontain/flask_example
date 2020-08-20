@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "api-example.fullname" . }}-test-api"
+  labels:
+    {{- include "api-example.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: test-api
+      image: alpine
+      command: ['sh']
+      args: ['-c', '/scripts/test.sh']
+      volumeMounts:
+      - name: scripts
+        mountPath: /scripts
+      env:
+        - name: API_ENDPOINT
+          value: {{ include "api-example.fullname" . }}
+  volumes:
+  - name: scripts
+    configMap:
+      name: test-api-scripts
+      defaultMode: 511
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-api-scripts
+data:
+  test.sh: |
+    set -xe
+    apk add curl
+    echo "sending requests to $API_ENDPOINT"
+    PID=$RANDOM$RANDOM$RANDOM
+    curl -X POST $API_ENDPOINT/patient/patient_$PID -d "address=patient$PID"
+    curl -X GET $API_ENDPOINT/patient/patient_$PID
+    curl -X GET $API_ENDPOINT/score/patient_$PID
