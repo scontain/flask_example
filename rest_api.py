@@ -9,7 +9,7 @@ app = Flask(__name__)
 api = Api(app)
 
 # Setup redis instance.
-REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
 db = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT)
 
@@ -47,5 +47,5 @@ api.add_resource(Patient, '/patient/<string:patient_id>')
 api.add_resource(Score, '/score/<string:patient_id>')
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host='0.0.0.0', port=4996)
+    app.debug = False
+    app.run(host='0.0.0.0', port=4996, threaded=True)

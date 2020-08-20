@@ -4,6 +4,15 @@ services:
         image: sconecuratedimages/kubernetes:las
         devices:
          - "$DEVICE"
+    redis:
+        image: sconecuratedimages/apps:redis-4.0.11-alpine-scone4.2
+        devices:
+         - "$DEVICE"
+        ports:
+         - "6379"
+        environment:
+         - SCONE_VERSION=1
+           
     python:
         image: flask_restapi_image
         devices:
@@ -12,3 +21,7 @@ services:
         depends_on:
          - las
         privileged: true
+        ports:
+         - "4996:4996"
+        links:
+         - redis

@@ -13,14 +13,14 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 
 # CONFIG Parameters (might change)
 
-export SCONE_CAS_ADDR="scone-cas.cf"
+export SCONE_CAS_ADDR="4-0-0.scone-cas.cf"
 export DEVICE="/dev/sgx"
 
 export CAS_MRENCLAVE="9a1553cd86fd3358fb4f5ac1c60eb8283185f6ae0e63de38f907dbaab7696794"
 
 export CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
-export PYTHON_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
-export PYTHON_MRENCLAVE=`docker pull $PYTHON_IMAGE > /dev/null ; docker run -i --rm -e "SCONE_HASH=1" $PYTHON_IMAGE python`
+export PYTHON_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
+export PYTHON_MRENCLAVE="a61f844dcc46be3b8cb536e5352968b587ea195c9a7ad5948d8c4d1f96c26a3c"
 
 # create random and hence, uniquee session number
 SESSION="FlaskSession-$RANDOM-$RANDOM-$RANDOM"
