@@ -2,7 +2,7 @@
 #
 # tasks performed:
 #
-# - creates a local Docker image with an encrypted Python program (wordcount) and encrypted input file
+# - creates a local Docker image with an encrypted Python program (flask patient service) and encrypted input file
 # - pushes a new session to a CAS instance
 # - creates a file with the session name
 #
@@ -34,7 +34,7 @@ mkdir native-files/
 mkdir encrypted-files/
 mkdir fspf-file/
 cp fspf.sh fspf-file
-cp redis_api.py native-files/
+cp rest_api.py native-files/
 
 # ensure that we have an up-to-date image
 docker pull $CLI_IMAGE
@@ -66,11 +66,11 @@ FROM $PYTHON_IMAGE
 COPY encrypted-files /fspf/encrypted-files
 COPY fspf-file/fs.fspf /fspf/fs.fspf
 COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements
+RUN pip3 install -r requirements.txt
 EOF
 
-# create a wordcount image with encrypted wordcount.py
-docker build --pull -t wordcount .
+# create a image with encrypted flask service
+docker build --pull -t flask_restapi_image .
 
 # ensure that we have self-signed client certificate
 
