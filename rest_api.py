@@ -12,7 +12,15 @@ api = Api(app)
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
 REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
 db = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT)
-
+# db = redis.StrictRedis(
+#    host=REDIS_HOST,
+#    port=REDIS_PORT,
+#    ssl=True, 
+#    ssl_keyfile='/tls/client.key', 
+#    ssl_certfile='/tls/client.crt', 
+#    ssl_cert_reqs='required', 
+#    ssl_ca_certs='/tls/redis-ca.pem',
+#    )
 
 class Patient(Resource):
     def get(self, patient_id):
