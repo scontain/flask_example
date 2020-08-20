@@ -1,0 +1,4 @@
+flask
+sqlalchemy
+rq
+flask_restful
