@@ -5,10 +5,32 @@
 ```bash
 git clone https://github.com/scontain/flask_example.git
 cd flask_example
-./create_image.sh
 ```
 
-## Install the Kubernetes Cluster
+
+## Run Service using docker-compose
+
+```bash
+./create_image.sh
+source my-env
+docker-compose up
+```
+
+### Testing the service
+
+```bash
+export URL=localhost:4996
+```
+
+```bash
+curl -X POST  -d "address=patient3 address"  ${URL}/patient/patient_3
+curl -X GET  ${URL}/patient/patient_3 
+curl -X GET  ${URL}/score/patient_3
+```
+
+## Execution of Kubernetes Cluster
+
+### Install SCONE services
 
 Get access to `SconeApps` (see <https://sconedocs.github.io/helm/>):
 
@@ -34,18 +56,6 @@ helm install las sconeapps/las
 helm install cas sconeapps/cas
 ```
 
-## Run Service
+### Run the application
 
-... using helm
 
-## Testing the service
-
-```bash
-export URL=localhost:4996
-```
-
-```bash
-curl -X POST  -d "address=patient3 address"  ${URL}/patient/patient_3
-curl -X GET  ${URL}/patient/patient_3 
-curl -X GET  ${URL}/score/patient_3
-```
