@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-api
+  labels:
+    app: test-api
+spec:
+  containers:
+    - name: test-api
+      image: alpine
+      command: ['sh']
+      args: ['-c', '/scripts/test.sh']
+      volumeMounts:
+      - name: scripts
+        mountPath: /scripts
+      env:
+        - name: API_ENDPOINT
+          value: "api"
+  volumes:
+  - name: scripts
+    configMap:
+      name: test-api-scripts
+      defaultMode: 511
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-api-scripts
+data:
+  test.sh: |
+    set -x
+    apk add curl
+    echo "waiting 30 seconds"
+    sleep 30
+    echo "sending requests to $API_ENDPOINT"
+    PID=$RANDOM
+    curl -X POST $API_ENDPOINT/patient/patient_$PID -d "address=patient$PID"
+    curl -X GET $API_ENDPOINT/patient/patient_$PID
+    curl -X GET $API_ENDPOINT/score/patient_$PID
