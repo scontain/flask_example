@@ -1,10 +1,6 @@
 name: $REDIS_SESSION
 version: "0.2"
 
-# Access control:
-#   - only the data owner (CREATOR) can read or update the session
-#   - even the data owner cannot read the session secrets (i.e., the volume key and tag)
-
 access_policy:
   read:
    - CREATOR
@@ -14,8 +10,8 @@ access_policy:
 services:
   - name: redis
     image_name: redis_image
-    command: redis-server --tls-port 6379 --port 0  --tls-cert-file /tls/redis.crt --tls-key-file /tls/redis.key --tls-ca-cert-file /tls/ca.crt
-    mrenclaves: ["$MRENCLAVE_REDIS"]
+    command: redis-server --tls-port 6379 --port 0 --tls-cert-file /tls/redis.crt --tls-key-file /tls/redis.key --tls-ca-cert-file /tls/ca.crt
+    mrenclaves: ["$MRENCLAVE"]
     pwd: /
 
 images:
@@ -24,24 +20,22 @@ images:
        - path: /tls/ca.crt
          content: $$SCONE::session-ca-certificate.chain$$ # Export this session's CA certificate & chain
        - path: /tls/redis.crt
-         content: $$SCONE::redis.crt$$ # export redis server certificate
-       - path: /etc/redis.key
-         content: $$SCONE::redis.key$$ # export redis server private key
-       - path: /etc/client.crt
-         content: $$SCONE::redis_client_cert.crt$$ # export client certificate
-       - path: /etc/client.key
-         content: $$SCONE::redis_client_cert.key$$ # export client key
+         content: $$SCONE::redis.crt$$
+       - path: /tls/redis.key
+         content: $$SCONE::redis.key$$
+       - path: /tls/client.crt
+         content: $$SCONE::redis_client_cert.crt$$
+       - path: /tls/client.key
+         content: $$SCONE::redis_client_cert.key$$
 
-# Export client credentials from DB session.
-# The client CA is the session CA of this session
 secrets:
-  - name: redis # automatically generate MariaDB server certificate
+  - name: redis # automatically generate Redis server certificate
     kind: x509
   - name: redis_client_cert # automatically generate client certificate
     kind: x509
     export:
-      - $FLASK_SESSION # export client cert/key to upload session
-  - name: redis_ca_cert # export session CA certificate as MariaDB CA certificate
+      - $FLASK_SESSION # export client cert/key to client session
+  - name: redis_ca_cert # export session CA certificate as Redis CA certificate
     kind: session-ca
     export:
-      - $FLASK_SESSION # export the session CA certificate to upload session
+      - $FLASK_SESSION # export the session CA certificate to client session

@@ -15,7 +15,6 @@ services:
    - name: flask_restapi
      image_name: flask_restapi_image
      mrenclaves: [$MRENCLAVE]
-     tags: [scone-python]
      command: "python /fspf/encrypted-files/rest_api.py"
      environment:
       SCONE_MODE: hw
@@ -27,8 +26,6 @@ services:
 
 images:
    - name: flask_restapi_image
-     mrenclaves: [$MRENCLAVE]
-     tags: [scone-python]
      injection_files:
         - path: /tls/redis-ca.pem
           content: $$SCONE::redis_ca_cert.chain$$
@@ -42,4 +39,4 @@ secrets:
     - name: redis_client_cert
       import: $REDIS_SESSION
     - name: redis_ca_cert
-      import: $$REDIS_SESSION
+      import: $REDIS_SESSION
