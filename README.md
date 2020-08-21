@@ -67,13 +67,19 @@ helm install las sconeapps/las --set service.hostPort=true
 helm install cas sconeapps/cas
 ```
 
+Install the SGX device plugin for Kubernetes:
+
+```bash
+helm install sgxdevplugin sconeapps/sgxdevplugin
+```
+
 ### Run the application
 
 Start by creating a Docker image and setting its name. Remember to specify a repository to which you are allowed to push:
 
 ```bash
 export IMAGE=sconecuratedimages/application:v0.4
-./create-image.sh
+./create_image.sh
 source myenv
 docker push $IMAGE
 ```
@@ -101,6 +107,7 @@ This will spawn a pod and make a few queries to the API.
 ```bash
 helm delete cas
 helm delete las
+helm delete sgxdevplugin
 helm delete api-v1
 kubectl delete pod api-v1-record-api-test-api
 ```
