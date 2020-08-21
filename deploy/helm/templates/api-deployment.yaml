@@ -37,7 +37,7 @@ spec:
             - name: REDIS_PORT
               value: {{ .Values.redis.service.port | quote }}
             - name: SCONE_CONFIG_ID
-              value: {{ .Values.scone.session }}
+              value: {{ .Values.scone.flask_session }}
             - name: SCONE_CAS_ADDR
               value: {{ .Values.scone.cas }}
             - name: SCONE_LAS_ADDR

@@ -12,7 +12,7 @@ cd flask_example
 
 ```bash
 ./create_image.sh
-source my-env
+source myenv
 docker-compose up
 ```
 
@@ -72,9 +72,10 @@ helm install cas sconeapps/cas
 Start by creating a Docker image and setting its name. Remember to specify a repository to which you are allowed to push:
 
 ```bash
-export IMAGE=sconecuratedimages/application:v0.3
+export IMAGE=sconecuratedimages/application:v0.4
 ./create-image.sh
 source myenv
+docker push $IMAGE
 ```
 
 Use the Helm chart in `deploy/helm` to deploy the application to a Kubernetes cluster.
@@ -83,7 +84,7 @@ Use the Helm chart in `deploy/helm` to deploy the application to a Kubernetes cl
 helm install api-v1 deploy/helm \
    --set image=$IMAGE \
    --set scone.cas=$SCONE_CAS_ADDR \
-   --set scone.api_session=$API_SESSION \
+   --set scone.flask_session=$FLASK_SESSION \
    --set scone.redis_session=$REDIS_SESSION
 ```
 
