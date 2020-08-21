@@ -25,7 +25,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image }}"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: ["python"]
           ports:
             - name: api

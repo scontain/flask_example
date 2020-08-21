@@ -94,6 +94,8 @@ helm install api-v1 deploy/helm \
    --set scone.redis_session=$REDIS_SESSION/redis
 ```
 
+If you want your service to get traffic from the internet, add `--set service.type=LoadBalancer` to the line above. The external IP address will be visible when you `kubectl get services`.
+
 After all resources are `Running`, you can test the API:
 
 ```bash

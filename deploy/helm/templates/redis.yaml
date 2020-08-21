@@ -12,6 +12,7 @@ spec:
   containers:
     - name: master
       image: {{ .Values.redis.image }}
+      imagePullPolicy: Always
       env:
         - name: MASTER
           value: "true"
