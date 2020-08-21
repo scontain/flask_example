@@ -90,8 +90,8 @@ Use the Helm chart in `deploy/helm` to deploy the application to a Kubernetes cl
 helm install api-v1 deploy/helm \
    --set image=$IMAGE \
    --set scone.cas=$SCONE_CAS_ADDR \
-   --set scone.flask_session=$FLASK_SESSION \
-   --set scone.redis_session=$REDIS_SESSION
+   --set scone.flask_session=$FLASK_SESSION/flask_restapi \
+   --set scone.redis_session=$REDIS_SESSION/redis
 ```
 
 After all resources are `Running`, you can test the API:
