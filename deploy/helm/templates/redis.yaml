@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ include "api-example.fullname" . }}-redis-master
+  name: {{ include "example.fullname" . }}-redis-master
   labels:
-    app: {{ include "api-example.fullname" . }}-redis
+    app: {{ include "example.fullname" . }}-redis
 spec:
   {{- with .Values.imagePullSecrets }}
   imagePullSecrets:
@@ -34,10 +34,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "api-example.fullname" . }}-redis
+  name: {{ include "example.fullname" . }}-redis
 spec:
   ports:
     - port: {{ .Values.redis.service.port }}
       targetPort: redis
   selector:
-    app: {{ include "api-example.fullname" . }}-redis
+    app: {{ include "example.fullname" . }}-redis

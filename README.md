@@ -109,6 +109,6 @@ helm delete cas
 helm delete las
 helm delete sgxdevplugin
 helm delete api-v1
-kubectl delete pod api-v1-record-api-test-api
+kubectl delete pod api-v1-example-test-api
 ```
 

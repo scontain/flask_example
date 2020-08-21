@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "api-example.fullname" . }}-test-api"
+  name: "{{ include "example.fullname" . }}-test-api"
   labels:
-    {{- include "api-example.labels" . | nindent 4 }}
+    {{- include "example.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -17,7 +17,7 @@ spec:
         mountPath: /scripts
       env:
         - name: API_ENDPOINT
-          value: {{ include "api-example.fullname" . }}
+          value: {{ include "example.fullname" . }}
   volumes:
   - name: scripts
     configMap:
