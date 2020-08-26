@@ -19,6 +19,7 @@ services:
      environment:
       SCONE_MODE: hw
       SCONE_LOG: "7"
+      REDIS_HOST: api-v1-example-redis
      pwd: /
      fspf_tag: $SCONE_FSPF_TAG
      fspf_key: $SCONE_FSPF_KEY

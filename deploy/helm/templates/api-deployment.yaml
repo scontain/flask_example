@@ -33,7 +33,7 @@ spec:
               protocol: TCP
           env:
             - name: REDIS_HOST
-              value: redis
+              value: {{ include "example.fullname" . }}-redis
             - name: REDIS_PORT
               value: {{ .Values.redis.service.port | quote }}
             - name: SCONE_CONFIG_ID
