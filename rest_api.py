@@ -5,8 +5,10 @@ import os
 import random
 import redis
 
+
 app = Flask(__name__)
 api = Api(app)
+
 
 # Setup redis instance.
 REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
@@ -17,14 +19,17 @@ db = redis.StrictRedis(
    ssl=True,
    ssl_keyfile='/tls/client.key',
    ssl_certfile='/tls/client.crt',
-   ssl_cert_reqs=None, # TODO: change to required. 
+   ssl_cert_reqs=None, # TODO: change to required.
    ssl_ca_certs='/tls/redis-ca.pem')
+
 
 class Patient(Resource):
     def get(self, patient_id):
         patient_data = db.get(patient_id)
         if patient_data is not None:
-            return jsonify(json.loads(patient_data.decode('utf-8')))
+            decoded_data = json.loads(patient_data.decode('utf-8'))
+            decoded_data["id"] = patient_id
+            return jsonify(decoded_data)
         return Response({"error": "unknown patient_id"}, status=404, mimetype='application/json')
 
     def post(self, patient_id):
@@ -32,13 +37,31 @@ class Patient(Resource):
             return Response({"error": "already exists"}, status=403, mimetype='application/json')
         else:
             # convert patient data to binary.
-            patient_data = json.dumps({"address": request.form['address'], "score": random.random()}).encode('utf-8')
+            patient_data = json.dumps({
+            "fname": request.form['fname'],
+            "lname": request.form['lname'],
+            "address": request.form['address'],
+            "city": request.form['city'],
+            "state": request.form['state'],
+            "ssn": request.form['ssn'],
+            "email": request.form['email'],
+            "dob": request.form['dob'],
+            "contactphone": request.form['contactphone'],
+            "drugallergies": request.form['drugallergies'],
+            "preexistingconditions": request.form['preexistingconditions'],
+            "dateadmitted": request.form['dateadmitted'],
+            "insurancedetails": request.form['insurancedetails'],
+            "score": random.random()
+            }).encode('utf-8')
             try:
                 db.set(patient_id, patient_data)
             except Exception as e:
                 print(e)
                 return Response({"error": "internal server error"}, status=500, mimetype='application/json')
-            return jsonify(json.loads(patient_data.decode('utf-8')))
+            patient_data = json.loads(patient_data.decode('utf-8'))
+            patient_data["id"] = patient_id
+            return jsonify(patient_data)
+
 
 class Score(Resource):
     def get(self, patient_id):
@@ -51,6 +74,7 @@ class Score(Resource):
 
 api.add_resource(Patient, '/patient/<string:patient_id>')
 api.add_resource(Score, '/score/<string:patient_id>')
+
 
 if __name__ == '__main__':
     app.debug = False

@@ -32,9 +32,18 @@ metadata:
 data:
   test.sh: |
     set -xe
+    function check_res_code {
+        if [[ 200 != "$1" ]]; then
+           echo "request failed with response code: $RES"
+           exit 1;
+        fi
+    }
     apk add curl
     echo "sending requests to $API_ENDPOINT"
     PID=$RANDOM$RANDOM$RANDOM
-    curl -X POST $API_ENDPOINT/patient/patient_$PID -d "address=patient$PID"
-    curl -X GET $API_ENDPOINT/patient/patient_$PID
-    curl -X GET $API_ENDPOINT/score/patient_$PID
+    RES=$(curl -o /dev/null -s -w "%{http_code}\n" -X POST $API_ENDPOINT/patient/patient_$PID -d "fname=Jane&lname=Doe&address='123 Main Street'&city=Richmond&state=Washington&ssn=123-223-2345&email=nr@aaa.com&dob=01/01/2010&contactphone=123-234-3456&drugallergies='Sulpha, Penicillin, Tree Nut'&preexistingconditions='diabetes, hypertension, asthma'&dateadmitted=01/05/2010&insurancedetails='Primera Blue Cross'")
+    check_res_code $RES
+    RES=$(curl -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/patient/patient_$PID)
+    check_res_code $RES
+    RES=$(curl -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/score/patient_$PID)
+    check_res_code $RES
