@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "example.fullname" . }}-redis
+  name: redis
 spec:
   ports:
     - port: {{ .Values.redis.service.port }}
