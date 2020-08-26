@@ -27,6 +27,10 @@ services:
 images:
    - name: flask_restapi_image
      injection_files:
+        - path: /tls/flask.crt
+          content: $$SCONE::flask.crt$$
+        - path: /tls/flask.key
+          content: $$SCONE::flask.key$$
         - path: /tls/redis-ca.pem
           content: $$SCONE::redis_ca_cert.chain$$
         - path: /tls/client.crt
@@ -36,6 +40,18 @@ images:
 
 # Import client credentials from DB session.
 secrets:
+    - name: flask_ca_key
+      kind: private-key
+    - name: flask_ca_cert
+      kind: x509-ca
+      export_public: true
+      private_key: flask_ca_key
+    - name: flask_key
+      kind: private-key
+    - name: flask
+      kind: x509
+      private_key: flask_key
+      issuer: flask_ca_cert
     - name: redis_client_key
       import:
         session: $REDIS_SESSION
