@@ -1,5 +1,5 @@
 name: $FLASK_SESSION
-version: "0.2"
+version: "0.3"
 
 # Access control:
 #   - only the data owner (CREATOR) can read or update the session
@@ -36,7 +36,15 @@ images:
 
 # Import client credentials from DB session.
 secrets:
+    - name: redis_client_key
+      import:
+        session: $REDIS_SESSION
+        secret: redis_client_key
     - name: redis_client_cert
-      import: $REDIS_SESSION
+      import:
+        session: $REDIS_SESSION
+        secret: redis_client_cert
     - name: redis_ca_cert
-      import: $REDIS_SESSION
+      import:
+        session: $REDIS_SESSION
+        secret: redis_ca_cert
