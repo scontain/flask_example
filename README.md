@@ -133,7 +133,7 @@ Edit `/etc/hosts` and add the alias "api" to the server IP address. In this case
 ```
 
 ```bash
-export URL=https://api:4996
+export URL=https://api
 ```
 
 Now you can perform queries such as:
