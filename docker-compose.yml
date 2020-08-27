@@ -5,7 +5,7 @@ services:
         devices:
          - "$DEVICE"
     redis:
-        image: sconecuratedimages/apps:redis-6-alpine-scone4.2
+        image: sconecuratedimages/experimental:redis-6-ubuntu
         command: sh -c "sleep 5; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$SCONE_CAS_ADDR SCONE_CONFIG_ID=$REDIS_SESSION/redis redis-server"
         devices:
          - "$DEVICE"

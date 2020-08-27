@@ -4,7 +4,7 @@
 
 # configure redis
 redis:
-  image: sconecuratedimages/apps:redis-6-alpine-scone4.2.0
+  image: sconecuratedimages/experimental:redis-6-ubuntu
   service:
     port: 6379
 

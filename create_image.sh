@@ -22,8 +22,8 @@ export CAS_MRENCLAVE="9a1553cd86fd3358fb4f5ac1c60eb8283185f6ae0e63de38f907dbaab7
 export CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
 export PYTHON_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
 export PYTHON_MRENCLAVE="a61f844dcc46be3b8cb536e5352968b587ea195c9a7ad5948d8c4d1f96c26a3c"
-export REDIS_IMAGE="sconecuratedimages/apps:redis-6-alpine-scone4.2.0"
-export REDIS_MRENCLAVE="97662c4238d26401d142be748f35405a500fb5298545aa35c84a8c8422a1efb1"
+export REDIS_IMAGE="sconecuratedimages/experimental:redis-6-ubuntu"
+export REDIS_MRENCLAVE="60c87d30d609afd79d9c0af2b211ac30291d72e8989c1c6895d9aa3703b28882"
 
 # create random and hence, uniquee session number
 FLASK_SESSION="FlaskSession-$RANDOM-$RANDOM-$RANDOM"
