@@ -40,18 +40,18 @@ images:
 
 # Import client credentials from DB session.
 secrets:
-    - name: flask_ca_key
+    - name: api_ca_key
       kind: private-key
-    - name: flask_ca_cert
+    - name: api_ca_cert
       kind: x509-ca
       export_public: true
-      private_key: flask_ca_key
+      private_key: api_ca_key
     - name: flask_key
       kind: private-key
     - name: flask
       kind: x509
       private_key: flask_key
-      issuer: flask_ca_cert
+      issuer: api_ca_cert
     - name: redis_client_key
       import:
         session: $REDIS_SESSION
