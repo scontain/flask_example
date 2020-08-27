@@ -5,19 +5,21 @@ services:
         devices:
          - "$DEVICE"
     redis:
-        image: sconecuratedimages/apps:redis-4.0.11-alpine-scone4.2
+        image: sconecuratedimages/experimental:redis-6-ubuntu
+        command: sh -c "sleep 5; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$SCONE_CAS_ADDR SCONE_CONFIG_ID=$REDIS_SESSION/redis redis-server"
         devices:
          - "$DEVICE"
+        depends_on:
+         - las
         ports:
          - "6379"
         environment:
          - SCONE_VERSION=1
-           
     python:
-        image: flask_restapi_image
+        image: "$IMAGE"
         devices:
          - "$DEVICE"
-        command: sh -c "sleep 5; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$SCONE_CAS_ADDR SCONE_CONFIG_ID=$SESSION/flask_restapi python"  
+        command: sh -c "sleep 5; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$SCONE_CAS_ADDR SCONE_CONFIG_ID=$FLASK_SESSION/flask_restapi python"  
         depends_on:
          - las
         privileged: true

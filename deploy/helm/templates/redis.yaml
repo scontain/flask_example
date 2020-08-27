@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ include "api-example.fullname" . }}-redis-master
+  name: {{ include "example.fullname" . }}-redis-master
   labels:
-    app: {{ include "api-example.fullname" . }}-redis
+    app: {{ include "example.fullname" . }}-redis
 spec:
   {{- with .Values.imagePullSecrets }}
   imagePullSecrets:
@@ -12,21 +12,33 @@ spec:
   containers:
     - name: master
       image: {{ .Values.redis.image }}
+      imagePullPolicy: Always
       env:
         - name: MASTER
           value: "true"
+        - name: SCONE_CONFIG_ID
+          value: {{ .Values.scone.redis_session }}
+        - name: SCONE_CAS_ADDR
+          value: {{ .Values.scone.cas }}
+        - name: SCONE_LAS_ADDR
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
       ports:
         - name: redis
           containerPort: 6379
           protocol: TCP
+      resources:
+        limits:
+          sgx.k8s.io/sgx: 1
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "api-example.fullname" . }}-redis
+  name: redis
 spec:
   ports:
     - port: {{ .Values.redis.service.port }}
       targetPort: redis
   selector:
-    app: {{ include "api-example.fullname" . }}-redis
+    app: {{ include "example.fullname" . }}-redis

@@ -1,5 +1,5 @@
 name: $FLASK_SESSION
-version: "0.2"
+version: "0.3"
 
 # Access control:
 #   - only the data owner (CREATOR) can read or update the session
@@ -15,7 +15,6 @@ services:
    - name: flask_restapi
      image_name: flask_restapi_image
      mrenclaves: [$MRENCLAVE]
-     tags: [scone-python]
      command: "python /fspf/encrypted-files/rest_api.py"
      environment:
       SCONE_MODE: hw
@@ -27,9 +26,11 @@ services:
 
 images:
    - name: flask_restapi_image
-     mrenclaves: [$MRENCLAVE]
-     tags: [scone-python]
      injection_files:
+        - path: /tls/flask.crt
+          content: $$SCONE::flask.crt$$
+        - path: /tls/flask.key
+          content: $$SCONE::flask.key$$
         - path: /tls/redis-ca.pem
           content: $$SCONE::redis_ca_cert.chain$$
         - path: /tls/client.crt
@@ -39,7 +40,27 @@ images:
 
 # Import client credentials from DB session.
 secrets:
+    - name: api_ca_key
+      kind: private-key
+    - name: api_ca_cert
+      kind: x509-ca
+      export_public: true
+      private_key: api_ca_key
+    - name: flask_key
+      kind: private-key
+    - name: flask
+      kind: x509
+      private_key: flask_key
+      issuer: api_ca_cert
+    - name: redis_client_key
+      import:
+        session: $REDIS_SESSION
+        secret: redis_client_key
     - name: redis_client_cert
-      import: $REDIS_SESSION
+      import:
+        session: $REDIS_SESSION
+        secret: redis_client_cert
     - name: redis_ca_cert
-      import: $$REDIS_SESSION
+      import:
+        session: $REDIS_SESSION
+        secret: redis_ca_cert

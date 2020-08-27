@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "api-example.fullname" . }}
+  name: {{ include "example.fullname" . }}
   labels:
-    {{- include "api-example.labels" . | nindent 4 }}
+    {{- include "example.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "api-example.selectorLabels" . | nindent 6 }}
+      {{- include "example.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "api-example.selectorLabels" . | nindent 8 }}
+        {{- include "example.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -25,7 +25,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image }}"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: ["python"]
           ports:
             - name: api
@@ -37,7 +37,7 @@ spec:
             - name: REDIS_PORT
               value: {{ .Values.redis.service.port | quote }}
             - name: SCONE_CONFIG_ID
-              value: {{ .Values.scone.session }}
+              value: {{ .Values.scone.flask_session }}
             - name: SCONE_CAS_ADDR
               value: {{ .Values.scone.cas }}
             - name: SCONE_LAS_ADDR

@@ -13,17 +13,21 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 
 # CONFIG Parameters (might change)
 
+export IMAGE=${IMAGE:-flask_restapi_image}
 export SCONE_CAS_ADDR="4-0-0.scone-cas.cf"
 export DEVICE="/dev/sgx"
 
-export CAS_MRENCLAVE="9a1553cd86fd3358fb4f5ac1c60eb8283185f6ae0e63de38f907dbaab7696794"
+export CAS_MRENCLAVE="460e24c965a94fd3718cb22472926c9517fb2912d2c8ca97ea26228e14d0bbdd"
 
 export CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
 export PYTHON_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
 export PYTHON_MRENCLAVE="a61f844dcc46be3b8cb536e5352968b587ea195c9a7ad5948d8c4d1f96c26a3c"
+export REDIS_IMAGE="sconecuratedimages/experimental:redis-6-ubuntu"
+export REDIS_MRENCLAVE="60c87d30d609afd79d9c0af2b211ac30291d72e8989c1c6895d9aa3703b28882"
 
 # create random and hence, uniquee session number
-SESSION="FlaskSession-$RANDOM-$RANDOM-$RANDOM"
+FLASK_SESSION="FlaskSession-$RANDOM-$RANDOM-$RANDOM"
+REDIS_SESSION="RedisSession-$RANDOM-$RANDOM-$RANDOM"
 
 # create directories for encrypted files and fspf
 rm -rf encrypted-files
@@ -54,7 +58,7 @@ fi
 # attest cas before uploading the session file, accept CAS running in debug
 # mode (-d) and outdated TCB (-G)
 docker run --device=$DEVICE -it $CLI_IMAGE sh -c "
-scone cas attest -G --only_for_testing-debug  scone-cas.cf $CAS_MRENCLAVE >/dev/null \
+scone cas attest -G --only_for_testing-debug  $SCONE_CAS_ADDR $CAS_MRENCLAVE >/dev/null \
 &&  scone cas show-certificate" > cas-ca.pem
 
 # create encrypte filesystem and fspf (file system protection file)
@@ -70,7 +74,7 @@ RUN pip3 install -r requirements.txt
 EOF
 
 # create a image with encrypted flask service
-docker build --pull -t flask_restapi_image .
+docker build --pull -t $IMAGE .
 
 # ensure that we have self-signed client certificate
 
@@ -83,16 +87,21 @@ fi
 export SCONE_FSPF_KEY=$(cat native-files/keytag | awk '{print $11}')
 export SCONE_FSPF_TAG=$(cat native-files/keytag | awk '{print $9}')
 
-MRENCLAVE=$PYTHON_MRENCLAVE envsubst '$MRENCLAVE $SCONE_FSPF_KEY $SCONE_FSPF_TAG $SESSION' < session-template.yml > session.yml
+MRENCLAVE=$REDIS_MRENCLAVE envsubst '$MRENCLAVE $REDIS_SESSION $FLASK_SESSION' < redis-template.yml > redis_session.yml
 # note: this is insecure - use scone session create instead
-curl -v -k -s --cert client.pem  --key client-key.pem  --data-binary @session.yml -X POST https://$SCONE_CAS_ADDR:8081/session
+curl -v -k -s --cert client.pem  --key client-key.pem  --data-binary @redis_session.yml -X POST https://$SCONE_CAS_ADDR:8081/session
+MRENCLAVE=$PYTHON_MRENCLAVE envsubst '$MRENCLAVE $SCONE_FSPF_KEY $SCONE_FSPF_TAG $FLASK_SESSION $REDIS_SESSION' < flask-template.yml > flask_session.yml
+# note: this is insecure - use scone session create instead
+curl -v -k -s --cert client.pem  --key client-key.pem  --data-binary @flask_session.yml -X POST https://$SCONE_CAS_ADDR:8081/session
 
 
 # create file with environment variables
 
 cat > myenv << EOF
-export SESSION="$SESSION"
+export FLASK_SESSION="$FLASK_SESSION"
+export REDIS_SESSION="$REDIS_SESSION"
 export SCONE_CAS_ADDR="$SCONE_CAS_ADDR"
+export IMAGE="$IMAGE"
 export DEVICE="$DEVICE"
 
 EOF

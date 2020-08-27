@@ -1,16 +1,16 @@
-# Default values for record-api.
+# Default values for this chart.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 # configure redis
 redis:
-  image: sconecuratedimages/apps:redis-4.0.11-alpine-scone4.2.0
+  image: sconecuratedimages/experimental:redis-6-ubuntu
   service:
     port: 6379
 
 replicaCount: 1
 
-image: clenimar/application:v0.3
+image: sconecuratedimages/application:v0.4
 
 # on which port the API is listening
 port: 4996
@@ -19,7 +19,8 @@ imagePullSecrets:
   - name: sconeapps
 
 scone:
-  session: "FlaskSession-23133-13488-7144/flask_restapi"
+  api_session: "FlaskSession-23133-13488-7144/flask_restapi"
+  redis_session: "RedisSession-70-32658-22675/redis"
   cas: "4-0-0.scone-cas.cf"
 
 nameOverride: ""
@@ -38,7 +39,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 443
 
 ingress:
   enabled: false
