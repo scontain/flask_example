@@ -17,7 +17,7 @@ export IMAGE=${IMAGE:-flask_restapi_image}
 export SCONE_CAS_ADDR="4-0-0.scone-cas.cf"
 export DEVICE="/dev/sgx"
 
-export CAS_MRENCLAVE="9a1553cd86fd3358fb4f5ac1c60eb8283185f6ae0e63de38f907dbaab7696794"
+export CAS_MRENCLAVE="460e24c965a94fd3718cb22472926c9517fb2912d2c8ca97ea26228e14d0bbdd"
 
 export CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
 export PYTHON_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
@@ -58,7 +58,7 @@ fi
 # attest cas before uploading the session file, accept CAS running in debug
 # mode (-d) and outdated TCB (-G)
 docker run --device=$DEVICE -it $CLI_IMAGE sh -c "
-scone cas attest -G --only_for_testing-debug  scone-cas.cf $CAS_MRENCLAVE >/dev/null \
+scone cas attest -G --only_for_testing-debug  $SCONE_CAS_ADDR $CAS_MRENCLAVE >/dev/null \
 &&  scone cas show-certificate" > cas-ca.pem
 
 # create encrypte filesystem and fspf (file system protection file)
