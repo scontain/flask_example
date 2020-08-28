@@ -20,8 +20,8 @@ export DEVICE="/dev/sgx"
 export CAS_MRENCLAVE="460e24c965a94fd3718cb22472926c9517fb2912d2c8ca97ea26228e14d0bbdd"
 
 export CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
-export PYTHON_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
-export PYTHON_MRENCLAVE="a61f844dcc46be3b8cb536e5352968b587ea195c9a7ad5948d8c4d1f96c26a3c"
+export PYTHON_IMAGE="sconecuratedimages/apps:python-3.7.3-alpine3.10-scone4.2"
+export PYTHON_MRENCLAVE="67b8017f7083435cb614b87c8daa14303f741a10a2a0bbf5dfabec777cf629b9"
 export REDIS_IMAGE="sconecuratedimages/experimental:redis-6-ubuntu"
 export REDIS_MRENCLAVE="60c87d30d609afd79d9c0af2b211ac30291d72e8989c1c6895d9aa3703b28882"
 

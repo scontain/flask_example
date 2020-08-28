@@ -19,8 +19,11 @@ db = redis.StrictRedis(
    ssl=True,
    ssl_keyfile='/tls/client.key',
    ssl_certfile='/tls/client.crt',
-   ssl_cert_reqs=None, # TODO: change to required.
-   ssl_ca_certs='/tls/redis-ca.pem')
+   ssl_cert_reqs="required",
+   ssl_ca_certs='/tls/redis-ca.crt')
+
+# Test connection to redis (break if the connection fails).
+db.info()
 
 
 class Patient(Resource):

@@ -35,6 +35,8 @@ secrets:
     kind: x509
     private_key: redis_key
     issuer: redis_ca_cert
+    dns:
+     - redis
   - name: redis_client_key
     kind: private-key
     export:

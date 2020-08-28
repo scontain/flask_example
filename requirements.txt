@@ -1,5 +1,3 @@
 flask
-sqlalchemy
 redis
-rq
 flask_restful
