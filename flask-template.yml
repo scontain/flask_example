@@ -52,6 +52,8 @@ secrets:
       kind: x509
       private_key: flask_key
       issuer: api_ca_cert
+      dns:
+        - api
     - name: redis_client_key
       import:
         session: $REDIS_SESSION
