@@ -1,0 +1,328 @@
+#!/bin/bash
+: '
+Access to this file is granted under the SCONE COMMERCIAL LICENSE V1.0 
+
+Any use of this product using this file requires a commercial license from scontain UG, www.scontain.com.
+
+Permission is also granted  to use the Program for a reasonably limited period of time  (but no longer than 1 month) 
+for the purpose of evaluating its usefulness for a particular purpose.
+
+THERE IS NO WARRANTY FOR THIS PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING 
+THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. 
+
+THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, 
+YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED ON IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY
+MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, 
+INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM INCLUDING BUT NOT LIMITED TO LOSS 
+OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE 
+WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+Copyright (C) 2020 scontain.com
+'
+
+set -e -x
+
+# print the right color for each level
+#
+# Arguments:
+# 1:  level
+
+function msg_color {
+    priority=$1
+    if [[ $priority == "fatal" ]] ; then
+        echo -e "\033[31m"
+    elif [[ $priority == "error" ]] ; then
+        echo -e "\033[34m"
+    elif [[ $priority == "warning" ]] ; then
+        echo -e "\033[35m"
+    elif [[ $priority == "info" ]] ; then
+        echo -e "\033[36m"
+    elif [[ $priority == "debug" ]] ; then
+        echo -e "\033[37m"
+    elif [[ $priority == "default" ]] ; then
+        echo -e "\033[00m"
+    else
+        echo -e "\033[32m";
+    fi
+}
+
+function error_exit {
+    msg_color "error"
+    echo "ERROR: $1" >&2
+    msg_color "default"
+    exit 1
+}
+
+
+function check_empty
+    if [[ -z "$2" ]] ; then
+        error_exit "$1"
+    fi
+
+function show_help {
+    echo -e \
+"Usage: sconify_image [OPTIONS]
+A script to convert a Python Image into an encrypted Python image running inside of an enclave.
+The approach assumes that one has created
+
+- FROMIMAGE: an image that is not encrypted and that runs natively
+- POLICY: a policy template to generate a session policy for this image
+
+and it generate
+- a policy and optionally uploads this to a given CAS
+- generate an encrypted image TOIMAGE
+
+it uses some standard images in the generation:
+
+- CLIIMAGE: a standard image that contains the SCONE CLI
+- BASEIMAGE: a standard that contains the binary - like the sconified Python
+
+The following options are supported:
+  -f, --from=[FROMIMAGE]    source image
+  -t, --to=[TOIMAGE]        destination image
+  -T, --template=[POLICY]   policy template
+  -P, --prefix=[PREFIX]     prefix of session name
+  -d, --dirs=[DIRECTORIES]  set of directories to encrypt
+  -p, --plain=[DIRECTORIES] copy directories that are not encrypted
+  -c, --cas=[CAS]           set the name of the CAS
+  -b, --base=[BASE]         set the base image
+  -c, --cli=[CLI]           set the SCONE CLI image
+
+  -h, --help               display this help and exit
+
+Usage example: encrypt Python image
+./sconify_image --from=my_original_image --to=new_image --template=flask.template --prefix=flask --cas=4-0-0.scone-cas.cf
+
+This uility replace the environment variables
+- \$SCONE_FSPF_TAG  by the tag of the encrypted image
+- \$SCONE_FSPF_KEY  by the key of the encrypted image
+- \$SESSION         by the name of the policy
+
+It writes the new session into file \$SESSION.policy. It will push this to the CAS in case CAS was specified.
+On success, it will print \$SESSION on stdout.
+"
+    exit 0
+}
+
+PREFIX="SCONIFY-"
+FROM_IMAGE=""
+TO_IMAGE=""
+ENC_DIRS=("/home" "/root" "/usr/local/lib")
+PLAIN_DIRS=("/etc")
+TEMPLATE=""
+CAS="4-0-0.scone-cas.cf"
+CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
+BASE_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
+
+function parse_args {
+    PARAMS=""
+
+    if [[ $# == 0 ]]; then
+        show_help
+    fi
+
+    while (( "$#" )); do
+    arg=$1
+    case "$arg" in
+
+        -h|--help)
+        show_help
+        shift
+        ;;
+
+        -f|--from)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            FROM_IMAGE="$2"
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --from=*)
+        FROM_IMAGE="${1#*=}"
+        shift
+        ;;
+
+        -t|--to)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            TO_IMAGE="$2"
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --to=*)
+        TO_IMAGE="${1#*=}"
+        shift
+        ;;
+
+        -T|--template)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            TEMPLATE="$2"
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --template=*)
+        TEMPLATE="${1#*=}"
+        shift
+        ;;
+
+        -d|--dir)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            ENC_DIRS=($2)
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --dir=*)
+        ENC_DIRS=(${1#*=})
+        shift
+        ;;
+
+
+        -P|--prefix)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            PREFIX="$2"
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --prefix=*)
+        PREFIX="${1#*=}"
+        shift
+        ;;
+
+        -p|--plain)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            PLAIN_DIRS=($2)
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --plain=*)
+        PLAIN_DIRS=(${1#*=})
+        shift
+        ;;
+
+        -c|--cas)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            ENC_DIRS="$2"
+            shift 2
+        else
+            error_exit "argument for '$1' is missing"
+        fi
+        ;;
+
+        --cas=*)
+        CAS="${1#*=}"
+        shift
+        ;;
+
+        *) # preserve positional arguments
+        error_exit "unsupported command '$1'"
+        ;;
+    esac
+    done
+    # set positional arguments in their proper place
+
+    eval set -- "$PARAMS"
+}
+
+parse_args $@
+check_empty "--from=IMAGE" "$FROM_IMAGE"
+check_empty "--to=IMAGE" "$TO_IMAGE"
+check_empty "--dirs=DIRS" "$ENC_DIRS"
+check_empty "--template=TEMPLATE" "$TEMPLATE"
+check_empty "--cas=CASADDR" "$CAS"
+check_empty "--cli=CLI_IMAGE" "$CLI_IMAGE"
+check_empty "--base=BASE_IMAGE" "$BASE_IMAGE"
+
+echo "Converting image $FROM_IMAGE to encrypted image $TO_IMAGE"
+
+docker pull "$FROM_IMAGE" || error_exit "Cannot pull image $FROM_IMAGE"
+
+# Approach:
+#  we generate a multi-stage Dockerfile in which we copy all the mentioned files into a new Docker image in which we encrypt all files
+#  we then copy all files that 
+
+dir="$TO_IMAGE"
+mkdir "$dir" || error_exit "Directory $TO_IMAGE already exists."
+pushd "$dir"
+
+mkdir native-files
+mkdir encrypted-files
+
+cat >fspf.sh <<EOF
+#!/bin/bash
+
+# create a file system protection file (first unencrypted)
+scone fspf create /fspf/fspf-file/fs.fspf
+# root region (i.e., "/") is not protected
+scone fspf addr /fspf/fspf-file/fs.fspf / --not-protected --kernel /
+EOF
+
+for DIR in "${ENC_DIRS[@]}" ; do
+    echo "$DIR"
+    cat >>fspf.sh <<EOF
+# add encrypted region $DIR is stored in the image in /fspf/dir
+scone fspf addr /fspf/fspf-file/fs.fspf $DIR --encrypted --kernel /fspf/encrypted-files$DIR
+# add all files in directory /native$DIR to /fspf/$DIR
+scone fspf addf /fspf/fspf-file/fs.fspf $DIR /fspf/native-files$DIR /fspf/encrypted-files$DIR 
+EOF
+
+done
+
+cat >>fspf.sh <<EOF
+# finally, encrypt the file system protection file and store the keys in directory (we assume in this demo that wee run on a trusted host)
+scone fspf encrypt /fspf/fspf-file/fs.fspf > /fspf/native-files/keytag
+EOF
+chmod a+x fspf.sh
+
+cat >Dockerfile <<EOF
+FROM $FROM_IMAGE
+
+FROM $CLI_IMAGE
+COPY fspf.sh /fspf/fspf.sh
+EOF
+
+for DIR in "${ENC_DIRS[@]}" ; do
+    echo "$DIR"
+    echo "COPY --from=0 $DIR /native-files$DIR" >>Dockerfile
+done
+
+# COPY FSPF FILE
+cat >>Dockerfile <<EOF
+FROM $BASE_IMAGE
+COPY --from=1  /fspf/fspf-file /fspf/fspf-file
+EOF
+for DIR in "${PLAIN_DIRS[@]}" ; do
+    echo "$DIR"
+    echo "COPY --from=0 $DIR $DIR" >>Dockerfile
+done
+
+echo "COPY --from=1 /fsfp/encrypted-files /fspf/encrypted-files" >>Dockerfile
+
+popd
+
+
+#
+# Converting directories: overwrite with "--dirs="  ""
+#
+# /home /root /usr/local/lib
+#
+# /fspf/home /fspf/root /fspf/usr/local/lib/python3.7/
+# Replacing:
