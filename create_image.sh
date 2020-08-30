@@ -11,6 +11,10 @@
 set -x -a -e
 trap "echo Unexpected error! See log above; exit 1" ERR
 
+# To avoid confusions in the case of error exits, remove myenv first
+
+rm -f myenv
+
 # CONFIG Parameters (might change)
 
 export IMAGE=${IMAGE:-flask_restapi_image}

@@ -154,6 +154,6 @@ else
     SESSION_VAR="SESSION"
 fi
 
-# note: this is insecure - use scone session create instead
+# note: this is insecure - use scone session create instead and we need to add error handling
 curl -v -k -s --cert client.pem  --key client-key.pem  --data-binary @$SESSION_FILE -X POST https://$CAS_ADDR:8081/session
 echo ${!SESSION_VAR}

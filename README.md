@@ -161,5 +161,45 @@ To integrate with existing container image pipelines, we support a pipelined ima
 - second, we use this native image and
   - generate an *encrypted image* in which all Python code and dependencies are encrypted. Note that is required for both integrity as well as confidentiality of the code.
   - generate a SCONE security policy that ensure that only our Flask-based application can read the code in clear text
+- third, we replace the Redis image by a SCONE-based Redis image
 
+### Stage One: Native Image Generation
 
+We generate our code with a simple Dockerfile by executing:
+
+```bash
+./create_native_image.sh
+```
+
+You could - im principle - try out this image by running
+
+```bash
+docker-compose --file native-docker-compose.yml up
+```
+
+However, this will block since REDIS does not support TLS yet. We would need some more steps to set up a working TLS connection to REDIS. Instead of trying to set up all the certificates manually, lets's try to create
+an encrypted image and solve the distribution of the TLS certificates using SCONE CAS.
+
+### Stage Two: Encrypted Image
+
+We now transform the native image that we generated in stage one, into a new encrypted image in which the Flask-based application runs inside of an SGX enclave.
+
+For that we have defined two policy templates that generate the TLS certificates and share the TLS certificates between REDIS and FLASK.
+The two policies ensure that REDIS attests the Flask App and that the Flask app attests REDIS implicitly via TLS.
+
+```bash
+export NATIVE_IMAGE="native_flask_restapi_image"  # image that was created by ./create_native_image.sh
+export IMAGE="flask_restapi_image" # the name of the encrypted Python image
+export SCONE_CAS_ADDR="4-0-0.scone-cas.cf" # we use a public SCONE CAS to store the session policies
+export FLASK_SESSION=$(./sconify_image --from=$NATIVE_IMAGE --to=$IMAGE --template=flask.template --session=flask_session.yml --cas=$SCONE_CAS_ADDR) # create encrypted image, instantiate policy template and upload policy
+export REDIS_SESSION=$(./upload_session --template=redis-template.yml --session=redis-session.yml  --image=sconecuratedimages/experimental:redis-6-ubuntu --cas=$SCONE_CAS_ADDR)
+export DEVICE=$(./determine_sgx_device) # determine the SGX device of the local computer
+```
+
+and then run locally by executing
+
+```bash
+docker-compose up
+```
+
+The next step is to run REDIS and the Flask app using the helm charts (as described above).
