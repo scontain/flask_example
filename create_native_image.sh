@@ -11,7 +11,7 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 
 # CONFIG Parameters (might change)
 
-export IMAGE=${IMAGE:-native_flask_restapi_image}
+export IMAGE="native_flask_restapi_image"
 export BASE_IMAGE=${BASE_IMAGE:-python:3.7-alpine3.11}
 
 # Create debug certificate

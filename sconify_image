@@ -206,12 +206,13 @@ dir="$TO_IMAGE"
 mkdir "$dir" || error_exit "Directory $TO_IMAGE already exists."
 pushd "$dir"
 
-mkdir native-files
-mkdir encrypted-files
 
 cat >fspf.sh <<EOF
 #!/bin/bash
 
+export SCONE_MODE=SIM
+mkdir -p /fspf/fspf-file
+mkdir -p /fspf/encrypted-files/
 # create a file system protection file (first unencrypted)
 scone fspf create /fspf/fspf-file/fs.fspf
 # root region (i.e., "/") is not protected
@@ -224,6 +225,7 @@ for DIR in "${ENC_DIRS[@]}" ; do
 # add encrypted region $DIR is stored in the image in /fspf/dir
 scone fspf addr /fspf/fspf-file/fs.fspf $DIR --encrypted --kernel /fspf/encrypted-files$DIR
 # encrypt and copy all files in directory /native$DIR to /fspf$DIR
+mkdir -p /fspf/encrypted-files$DIR
 scone fspf addf /fspf/fspf-file/fs.fspf $DIR /native-files$DIR /fspf/encrypted-files$DIR 
 EOF
 
@@ -251,23 +253,25 @@ done
 cat >>Dockerfile <<EOF
 RUN /fspf/fspf.sh
 FROM $BASE_IMAGE
-COPY --from=1  /fspf/fspf-file /fspf/fspf-file
+COPY --from=1  /fspf /fspf
 EOF
 for DIR in "${PLAIN_DIRS[@]}" ; do
     echo "$DIR"
     echo "COPY --from=0 $DIR $DIR" >>Dockerfile
 done
 
-echo "COPY --from=1 /fsfp/encrypted-files /fspf/encrypted-files" >>Dockerfile
 
 docker build -t $TO_IMAGE  --output out .
 
 export SCONE_FSPF_KEY=$(cat out/native-files/keytag | awk '{print $11}')
 export SCONE_FSPF_TAG=$(cat out/native-files/keytag | awk '{print $9}')
 
-SESSION=$(./upload_session --template="$TEMPLATE_FILE" --session="$SESSION_FILE"  --image="$TO_IMAGE" --cas=$CAS_ADDR)
-
 popd
+
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+SESSION=$("$SOURCE_DIR/upload_session" --template="$TEMPLATE_FILE" --session="$SESSION_FILE"  --image="$TO_IMAGE" --cas=$CAS_ADDR)
+
 echo $SESSION
 
 #
