@@ -153,3 +153,13 @@ helm delete api-v1
 kubectl delete pod api-v1-example-test-api
 ```
 
+## Pipelined Image Generation
+
+To integrate with existing container image pipelines, we support a pipelined image generation. In this example, we
+
+- first, generate a *native image* that contains our Flask-based application
+- second, we use this native image and
+  - generate an *encrypted image* in which all Python code and dependencies are encrypted. Note that is required for both integrity as well as confidentiality of the code.
+  - generate a SCONE security policy that ensure that only our Flask-based application can read the code in clear text
+
+
