@@ -89,7 +89,7 @@ The following options are supported:
   --prefix=[PREFIX]          prefix of session name
   --dirs=[DIRECTORIES]       set of directories to encrypt
   --plain=[DIRECTORIES]      copy directories that are not encrypted
-  --cas=[CAS]                set the name of the CAS
+  --cas=[CAS_ADDR]           set the name of the CAS_ADDR
   --base=[BASE]              set the base image
   --cli=[CLI]                set the SCONE CLI image
 
@@ -112,7 +112,7 @@ On success, it will print \$SESSION on stdout.
 PREFIX="SCONIFY-"
 FROM_IMAGE=""
 TO_IMAGE=""
-ENC_DIRS=("/home" "/root" "/usr/local/lib")
+ENC_DIRS=("/home" "/root" "/usr/local/lib" "/app/")
 PLAIN_DIRS=("/etc")
 TEMPLATE_FILE=""
 CAS="4-0-0.scone-cas.cf"
@@ -172,7 +172,7 @@ function parse_args {
         ;;
 
         --cas=*)
-        CAS="${1#*=}"
+        CAS_ADDR="${1#*=}"
         shift
         ;;
 
@@ -191,13 +191,12 @@ check_empty "--from=IMAGE" "$FROM_IMAGE"
 check_empty "--to=IMAGE" "$TO_IMAGE"
 check_empty "--dirs=DIRS" "$ENC_DIRS"
 check_empty "--template=TEMPLATE_FILE" "$TEMPLATE_FILE"
-check_empty "--cas=CASADDR" "$CAS"
+check_empty "--cas=CAS_ADDR" "$CAS_ADDR"
 check_empty "--cli=CLI_IMAGE" "$CLI_IMAGE"
 check_empty "--base=BASE_IMAGE" "$BASE_IMAGE"
+check_empty "--session=[SESSION_FILE]" SESSION_FILE
 
 echo "Converting image $FROM_IMAGE to encrypted image $TO_IMAGE"
-
-docker pull "$FROM_IMAGE" || error_exit "Cannot pull image $FROM_IMAGE"
 
 # Approach:
 #  we generate a multi-stage Dockerfile in which we copy all the mentioned files into a new Docker image in which we encrypt all files
@@ -224,15 +223,15 @@ for DIR in "${ENC_DIRS[@]}" ; do
     cat >>fspf.sh <<EOF
 # add encrypted region $DIR is stored in the image in /fspf/dir
 scone fspf addr /fspf/fspf-file/fs.fspf $DIR --encrypted --kernel /fspf/encrypted-files$DIR
-# add all files in directory /native$DIR to /fspf/$DIR
-scone fspf addf /fspf/fspf-file/fs.fspf $DIR /fspf/native-files$DIR /fspf/encrypted-files$DIR 
+# encrypt and copy all files in directory /native$DIR to /fspf$DIR
+scone fspf addf /fspf/fspf-file/fs.fspf $DIR /native-files$DIR /fspf/encrypted-files$DIR 
 EOF
 
 done
 
 cat >>fspf.sh <<EOF
 # finally, encrypt the file system protection file and store the keys in directory (we assume in this demo that wee run on a trusted host)
-scone fspf encrypt /fspf/fspf-file/fs.fspf > /fspf/native-files/keytag
+scone fspf encrypt /fspf/fspf-file/fs.fspf > /native-files/keytag
 EOF
 chmod a+x fspf.sh
 
@@ -250,6 +249,7 @@ done
 
 # COPY FSPF FILE
 cat >>Dockerfile <<EOF
+RUN /fspf/fspf.sh
 FROM $BASE_IMAGE
 COPY --from=1  /fspf/fspf-file /fspf/fspf-file
 EOF
@@ -260,8 +260,15 @@ done
 
 echo "COPY --from=1 /fsfp/encrypted-files /fspf/encrypted-files" >>Dockerfile
 
-popd
+docker build -t $TO_IMAGE  --output out .
 
+export SCONE_FSPF_KEY=$(cat out/native-files/keytag | awk '{print $11}')
+export SCONE_FSPF_TAG=$(cat out/native-files/keytag | awk '{print $9}')
+
+SESSION=$(./upload_session --template="$TEMPLATE_FILE" --session="$SESSION_FILE"  --image="$TO_IMAGE" --cas=$CAS_ADDR)
+
+popd
+echo $SESSION
 
 #
 # Converting directories: overwrite with "--dirs="  ""

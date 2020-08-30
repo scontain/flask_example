@@ -48,9 +48,9 @@ The following options are supported:
   --template=[TEMPLATE_FILE] policy template file
   --session=[SESSION_FILE]   set the base image
   --image=[IMAGE]            global name of the image
-  --cas=[CAS]                name of the CAS
+  --cas=[CAS_ADDR]           name of the CACAS_ADDRS
 
-  -h, --help               display this help and exit
+  -h, --help                 display this help and exit
 
 Usage example: encrypt Python image
 ./upload_session --from=native_flask_restapi_image --to=new_image --template=flask.template --prefix=flask --cas=4-0-0.scone-cas.cf
@@ -95,7 +95,7 @@ function parse_args {
         ;;
 
         --cas=*)
-        CAS="${1#*=}"
+        CAS_ADDR="${1#*=}"
         shift
         ;;
 
@@ -133,7 +133,6 @@ function read_properties()
        export MRENCLAVE="$value" ;
     fi
   done < "$file"
-  echo MRENCLAVE=$MRENCLAVE
 }
 
 # todo: download newest mrenclaves.html
@@ -144,10 +143,10 @@ read_properties "4-0-0.scone-cas.cf"
 if [[ ! -z "$TEMPLATE_FILE" ]] ; then
     SESSION_VAR=$(head -1 < "$TEMPLATE_FILE" | awk '{print $2}')
     SESSION_VAR=${SESSION_VAR:1:256} # cut off $
-    printf -v "$SESSION_VAR" "FlaskSession-$RANDOM-$RANDOM-$RANDOM"
-    echo $SESSION_VAR
-    declare -x $SESSION_VAR # export session variables
-    echo ${!SESSION_VAR}
+    if [[ -z ${!SESSION_VAR} ]] ; then
+        printf -v "$SESSION_VAR" "$SESSION_VAR-$RANDOM-$RANDOM-$RANDOM"
+        declare -x $SESSION_VAR # export session variables
+    fi
     envsubst "\$$SESSION_VAR \$MRENCLAVE" < "$TEMPLATE_FILE" > "$SESSION_FILE"
 else
     SESSION=$(head -1 < "$SESSION_FILE" | awk '{print $2}')
