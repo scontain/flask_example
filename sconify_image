@@ -81,6 +81,7 @@ it uses some standard images in the generation:
 - BASEIMAGE: a standard that contains the binary - like the sconified Python
 
 The following options are supported:
+
   --from=[FROMIMAGE]         source image
   --to=[TOIMAGE]             destination image
   --template=[TEMPLATE_FILE] file containing policy template
@@ -152,6 +153,7 @@ function parse_args {
         --session=*)
         SESSION_FILE="${1#*=}"
         shift
+
         ;;
 
         --dir=*)
