@@ -118,6 +118,7 @@ TEMPLATE_FILE=""
 CAS="4-0-0.scone-cas.cf"
 CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
 BASE_IMAGE="sconecuratedimages/apps:python3-alpine-scone4.2.0"
+BASE_IMAGE="sconecuratedimages/apps:python-3.7.3-alpine3.10-scone4.2"
 
 function parse_args {
     PARAMS=""
@@ -270,7 +271,7 @@ popd
 
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-SESSION=$("$SOURCE_DIR/upload_session" --template="$TEMPLATE_FILE" --session="$SESSION_FILE"  --image="$TO_IMAGE" --cas=$CAS_ADDR)
+SESSION=$("$SOURCE_DIR/upload_session" --template="$TEMPLATE_FILE" --session="$SESSION_FILE"  --image="$BASE_IMAGE" --cas=$CAS_ADDR)
 
 echo $SESSION
 

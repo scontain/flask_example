@@ -193,7 +193,7 @@ export IMAGE="flask_restapi_image" # the name of the encrypted Python image
 export SCONE_CAS_ADDR="4-0-0.scone-cas.cf" # we use a public SCONE CAS to store the session policies
 export FLASK_SESSION="FLASK_SESSION-$RANDOM-$RANDOM-$RANDOM"
 unset REDIS_SESSION
-export REDIS_SESSION=$(./upload_session --template=redis-template.yml --session=redis-session.yml  --image=sconecuratedimages/experimental:redis-6-ubuntu --cas=$SCONE_CAS_ADDR)
+export REDIS_SESSION=$(./upload_session --template=redis-template.yml --session=redis_session.yml  --image=sconecuratedimages/experimental:redis-6-ubuntu --cas=$SCONE_CAS_ADDR)
 export DEVICE=$(./determine_sgx_device) # determine the SGX device of the local computer
 ./sconify_image --from=$NATIVE_IMAGE --to=$IMAGE --template=flask-template.yml --session=flask_session.yml --cas=$SCONE_CAS_ADDR # create encrypted image, instantiate policy template and upload policy
 ```

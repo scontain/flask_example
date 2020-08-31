@@ -136,7 +136,7 @@ function read_properties()
 }
 
 # todo: download newest mrenclaves.html
-read_properties "4-0-0.scone-cas.cf"
+read_properties "$IMAGE"
 
 # create session file if template is specified
 
@@ -147,7 +147,7 @@ if [[ ! -z "$TEMPLATE_FILE" ]] ; then
         printf -v "$SESSION_VAR" "$SESSION_VAR-$RANDOM-$RANDOM-$RANDOM"
         declare -x $SESSION_VAR # export session variables
     fi
-    envsubst  < "$TEMPLATE_FILE" > "$SESSION_FILE"
+    SCONE="\$SCONE" envsubst  < "$TEMPLATE_FILE" > "$SESSION_FILE"
 else
     SESSION=$(head -1 < "$SESSION_FILE" | awk '{print $2}')
     SESSION_VAR="SESSION"
