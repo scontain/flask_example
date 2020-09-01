@@ -195,7 +195,7 @@ export FLASK_SESSION="FLASK_SESSION-$RANDOM-$RANDOM-$RANDOM"
 unset REDIS_SESSION
 export REDIS_SESSION=$(./upload_session --template=redis-template.yml --session=redis_session.yml  --image=sconecuratedimages/experimental:redis-6-ubuntu --cas=$SCONE_CAS_ADDR)
 export DEVICE=$(./determine_sgx_device) # determine the SGX device of the local computer
-./sconify_image --from=$NATIVE_IMAGE --to=$IMAGE --template=flask-template.yml --session=flask_session.yml --cas=$SCONE_CAS_ADDR # create encrypted image, instantiate policy template and upload policy
+./sconify_image --from=$NATIVE_IMAGE --to=$IMAGE --template=flask-sconify-template.yml --session=flask_session.yml --cas=$SCONE_CAS_ADDR # create encrypted image, instantiate policy template and upload policy
 ```
 
 and then run locally by executing

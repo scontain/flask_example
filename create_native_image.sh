@@ -12,8 +12,11 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 # CONFIG Parameters (might change)
 
 export IMAGE="native_flask_restapi_image"
-export BASE_IMAGE=${BASE_IMAGE:-python:3.7-alpine3.11}
+export BASE_IMAGE=${BASE_IMAGE:-python-3.7.3-alpine3.10}
 
+# Create a native Python image with the same version as the Scone curated image
+
+docker build -t python-3.7.3-alpine3.10 -f Dockerfile-native-python .
 # Create debug certificate
 
 ## note: this is not completely correct...
@@ -37,6 +40,6 @@ CMD python3 /app/rest_api.py
 EOF
 
 # create a native image for the flask service
-docker build --pull -t $IMAGE .
+docker build -t $IMAGE .
 
 echo "OK"

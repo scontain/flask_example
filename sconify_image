@@ -112,7 +112,7 @@ On success, it will print \$SESSION on stdout.
 PREFIX="SCONIFY-"
 FROM_IMAGE=""
 TO_IMAGE=""
-ENC_DIRS=("/home" "/root" "/usr/local/lib" "/app/")
+ENC_DIRS=("/home" "/root" "/usr/local/lib" "/app/" "/usr/lib/python3.7")
 PLAIN_DIRS=("/etc")
 TEMPLATE_FILE=""
 CAS="4-0-0.scone-cas.cf"
@@ -211,29 +211,29 @@ cat >fspf.sh <<EOF
 #!/bin/bash
 
 export SCONE_MODE=SIM
-mkdir -p /fspf/fspf-file
+mkdir -p /fspf
 mkdir -p /fspf/encrypted-files/
 # create a file system protection file (first unencrypted)
-scone fspf create /fspf/fspf-file/fs.fspf
+scone fspf create /fspf/fs.fspf
 # root region (i.e., "/") is not protected
-scone fspf addr /fspf/fspf-file/fs.fspf / --not-protected --kernel /
+scone fspf addr /fspf/fs.fspf / --not-protected --kernel /
 EOF
 
 for DIR in "${ENC_DIRS[@]}" ; do
     echo "$DIR"
     cat >>fspf.sh <<EOF
 # add encrypted region $DIR is stored in the image in /fspf/dir
-scone fspf addr /fspf/fspf-file/fs.fspf /fspf/encrypted-files$DIR --encrypted --kernel /fspf/encrypted-files$DIR
+scone fspf addr /fspf/fs.fspf $DIR --encrypted --kernel /fspf/encrypted-files$DIR
 # encrypt and copy all files in directory /native$DIR to /fspf$DIR
 mkdir -p /fspf/encrypted-files$DIR
-scone fspf addf /fspf/fspf-file/fs.fspf /fspf/encrypted-files$DIR /native-files$DIR /fspf/encrypted-files$DIR 
+scone fspf addf /fspf/fs.fspf $DIR /native-files$DIR /fspf/encrypted-files$DIR 
 EOF
 
 done
 
 cat >>fspf.sh <<EOF
 # finally, encrypt the file system protection file and store the keys in directory (we assume in this demo that wee run on a trusted host)
-scone fspf encrypt /fspf/fspf-file/fs.fspf > /native-files/keytag
+scone fspf encrypt /fspf/fs.fspf > /native-files/keytag
 cat /native-files/keytag
 EOF
 chmod a+x fspf.sh
@@ -262,10 +262,15 @@ for DIR in "${PLAIN_DIRS[@]}" ; do
 done
 
 
-docker build -t $TO_IMAGE . > build-output.txt
+docker build --no-cache -t $TO_IMAGE . > build-output.txt
 
 export SCONE_FSPF_KEY=$(cat build-output.txt | grep "Encrypted file system protection file" | awk '{print $11}')
 export SCONE_FSPF_TAG=$(cat build-output.txt | grep "Encrypted file system protection file" | awk '{print $9}')
+
+if [[ -z "$SCONE_FSPF_KEY" || -z "$SCONE_FSPF_TAG" ]] ; then
+	echo "Could not extract FSPF KEY/TAG" > /dev/stderr
+	exit 1
+fi
 
 popd
 

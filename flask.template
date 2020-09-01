@@ -15,7 +15,7 @@ services:
    - name: flask_restapi
      image_name: flask_restapi_image
      mrenclaves: [$MRENCLAVE]
-     command: "python3 /fspf/encrypted-files/app/rest_api.py"
+     command: "python3 /app/rest_api.py"
      environment:
       SCONE_MODE: hw
       SCONE_LOG: "7"
