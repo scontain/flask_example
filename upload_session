@@ -90,12 +90,12 @@ function parse_args {
         ;;
 
         --image=*)
-        IMAGE="${1#*=}"
+        export IMAGE="${1#*=}"
         shift
         ;;
 
         --cas=*)
-        CAS_ADDR="${1#*=}"
+        export CAS_ADDR="${1#*=}"
         shift
         ;;
 
@@ -154,5 +154,5 @@ else
 fi
 
 # note: this is insecure - use scone session create instead and we need to add error handling
-curl -v -k -s --cert client.pem  --key client-key.pem  --data-binary @$SESSION_FILE -X POST https://$CAS_ADDR:8081/session
+curl -v -k -s --cert client.pem  --key client-key.pem  --data-binary @$SESSION_FILE -X POST https://$CAS_ADDR:8081/session >/dev/stderr
 echo ${!SESSION_VAR}

@@ -45,3 +45,7 @@ secrets:
       issuer: api_ca_cert
       dns:
         - app
+
+security:
+  attestation:
+    mode: none
