@@ -5,29 +5,30 @@ fs = require("fs");
 console.log('Example tls app start!');
 console.log('read the secret :'+process.env.GREETING)
 
-const kyeFilePath = '/app/key.pem';
-const certFilePath = '/app/cert.pem';
+const kyeFilePath = '/tls/key.pem';
+const certFilePath = '/tls/cert.pem';
+
 
 try {
-  if (fs.existsSync(kyeFilePath)) {
-    console.log( kyeFilePath + " exists.")
-    //file exists
-  }  else {
-    console.log( kyeFilePath + " doesn't exist.")
-  }
+  fs.readFile(kyeFilePath, 'utf8', function (err,data) {
+    if (err) {
+      return console.log('err: '+err);
+    }
+    console.log('key.pem read');
+  });
 } catch(err) {
-  console.error(err)
+  console.log('error='+err);
 }
 
 try {
-  if (fs.existsSync(certFilePath)) {
-    console.log( certFilePath + " exists.")
-    //file exists
-  }  else {
-    console.log( certFilePath + " doesn't exist.")
-  }
+  fs.readFile(certFilePath, 'utf8', function (err,data) {
+    if (err) {
+      return console.log('err: '+err);
+    }
+    console.log('cert read');
+  });
 } catch(err) {
-  console.error(err)
+  console.log('error='+err);
 }
 
 var app = express();
@@ -39,6 +40,7 @@ app.get('/', function (req, res) {
 app.listen(443, function () {
   console.log('Example tls app listening on port 443!');
   console.log('scone mode is :'+process.env.GREETING)
+  console.log('Ok.');
 });
 
-https.createServer(options, app).listen(443);
+

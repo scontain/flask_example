@@ -13,20 +13,21 @@ access_policy:
 
 services:
    - name: app
-     image_name: $IMAGE
+     image_name: node_image
      mrenclaves: [$MRENCLAVE]
      command: node /app/app.js
      environment:
       SCONE_MODE: hw
       SCONE_LOG: "7"
+      GREETING: "Hello NodeJS"
      pwd: /
 
 images:
-   - name: flask_restapi_image
+   - name: node_image
      injection_files:
-         - path:  /app/cert.pem
+         - path:  /tls/cert.pem
            content: $$SCONE::app.crt$$
-         - path: /app/key.pem
+         - path: /tls/key.pem
            content: $$SCONE::app.key$$
 
 # Import client credentials from DB session.
@@ -46,6 +47,9 @@ secrets:
       dns:
         - app
 
+
 security:
   attestation:
-    mode: none
+    tolerate: [debug-mode, hyperthreading, insecure-igpu, outdated-tcb]
+    ignore_advisories: ["INTEL-SA-00076", "INTEL-SA-00088", "INTEL-SA-00106", "INTEL-SA-00115", "INTEL-SA-00135", "INTEL-SA-00203", "INTEL-SA-00161", "INTEL-SA-00220", "INTEL-SA-00270", "INTEL-SA-00293", "INTEL-SA-00320", "INTEL-SA-00329", "INTEL-SA-00233", "INTEL-SA-00220", "INTEL-SA-00270", "INTEL-SA-00293", "INTEL-SA-00320", "INTEL-SA-00329"]
+
