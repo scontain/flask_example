@@ -1,0 +1,16 @@
+version: '3.2'
+services:
+    las:
+        image: sconecuratedimages/kubernetes:las
+        devices:
+         - "$DEVICE"
+    python:
+        image: "$IMAGE"
+        devices:
+         - "$DEVICE"
+        command: sh -c "sleep 10; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$CAS_ADDR SCONE_CONFIG_ID=$NODE_SESSION/app node"
+        depends_on:
+         - las
+        privileged: true
+        ports:
+         - "4996:4996"
