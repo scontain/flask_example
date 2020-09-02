@@ -26,7 +26,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image }}"
           imagePullPolicy: Always
-          command: ["python3"]
+          command: ["/opt/scone/lib/ld-scone-x86_64.so.1", "/root/miniconda/bin/python3"]
           ports:
             - name: api
               containerPort: {{ .Values.port }}

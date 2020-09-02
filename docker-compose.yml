@@ -1,7 +1,7 @@
 version: '3.2'
 services:
     las:
-        image: sconecuratedimages/kubernetes:las
+        image: sconecuratedimages/services:las-scone4.2.1
         devices:
          - "$DEVICE"
     redis:
@@ -19,7 +19,7 @@ services:
         image: "$IMAGE"
         devices:
          - "$DEVICE"
-        command: sh -c "sleep 5; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$SCONE_CAS_ADDR SCONE_CONFIG_ID=$FLASK_SESSION/flask_restapi python3"
+        command: sh -c "sleep 5; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$SCONE_CAS_ADDR SCONE_CONFIG_ID=$FLASK_SESSION/flask_restapi /opt/scone/lib/ld-scone-x86_64.so.1 /root/miniconda/bin/python3"
         depends_on:
          - las
         privileged: true

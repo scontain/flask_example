@@ -54,3 +54,8 @@ secrets:
     private_key: redis_ca_key
     export:
     - session: $FLASK_SESSION # export the session CA certificate to client session
+
+security:
+  attestation:
+    tolerate: [debug-mode, hyperthreading, insecure-igpu, outdated-tcb]
+    ignore_advisories: ["INTEL-SA-00161", "INTEL-SA-00220", "INTEL-SA-00270", "INTEL-SA-00293", "INTEL-SA-00320", "INTEL-SA-00329"]

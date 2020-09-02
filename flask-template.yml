@@ -15,7 +15,7 @@ services:
    - name: flask_restapi
      image_name: flask_restapi_image
      mrenclaves: [$MRENCLAVE]
-     command: "python3 /fspf/encrypted-files/rest_api.py"
+     command: "/opt/scone/lib/glibc-loader /root/miniconda/bin/python3.8 /fspf/encrypted-files/rest_api.py"
      environment:
       SCONE_MODE: hw
       SCONE_LOG: "7"
@@ -66,3 +66,8 @@ secrets:
       import:
         session: $REDIS_SESSION
         secret: redis_ca_cert
+
+security:
+  attestation:
+    tolerate: [debug-mode, hyperthreading, insecure-igpu, outdated-tcb]
+    ignore_advisories: ["INTEL-SA-00161", "INTEL-SA-00220", "INTEL-SA-00270", "INTEL-SA-00293", "INTEL-SA-00320", "INTEL-SA-00329"]
