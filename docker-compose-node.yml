@@ -8,12 +8,12 @@ services:
         image: "$IMAGE"
         devices:
          - "$DEVICE"
-        command: sh -c "sleep 2; npm install express --save ; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$CAS_ADDR SCONE_CONFIG_ID=$NODE_SESSION/app node"
+        command: sh -c "sleep 5; npm install express --save ; SCONE_LOG=7 SCONE_LAS_ADDR=las SCONE_CAS_ADDR=$CAS_ADDR SCONE_CONFIG_ID=$NODE_SESSION/app node"
         depends_on:
          - las
         privileged: true
         ports:
-         - "4996:4996"
+         - "443:443"
         volumes:
          - "./app:/app"
 
