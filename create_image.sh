@@ -14,10 +14,10 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 # CONFIG Parameters (might change)
 
 export IMAGE=${IMAGE:-flask_restapi_image}
-export SCONE_CAS_ADDR="4-0-0.scone-cas.cf"
+export SCONE_CAS_ADDR="4-2-1.scone-cas.cf"
 export DEVICE="/dev/sgx"
 
-export CAS_MRENCLAVE="460e24c965a94fd3718cb22472926c9517fb2912d2c8ca97ea26228e14d0bbdd"
+export CAS_MRENCLAVE="4cd0fe54d3d8d787553b7dac7347012682c402220acd062e4d0da3bbe10a1c2c"
 
 export CLI_IMAGE="sconecuratedimages/kubernetes:hello-k8s-scone0.1"
 export PYTHON_IMAGE="sconecuratedimages/apps:python-3.7.3-alpine3.10-scone4.2"
@@ -45,10 +45,10 @@ docker pull $CLI_IMAGE
 
 # check if SGX device exists
 
-if [[ ! -c "$DEVICE" ]] ; then 
+if [[ ! -c "$DEVICE" ]] ; then
     export DEVICE_O="DEVICE"
     export DEVICE="/dev/isgx"
-    if [[ ! -c "$DEVICE" ]] ; then 
+    if [[ ! -c "$DEVICE" ]] ; then
         echo "Neither $DEVICE_O nor $DEVICE exist"
         exit 1
     fi
