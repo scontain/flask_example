@@ -1,7 +1,7 @@
 version: '3.2'
 services:
     las:
-        image: sconecuratedimages/kubernetes:las
+        image: sconecuratedimages/kubernetes:las-scone4.2.1
         devices:
          - "$DEVICE"
     redis:

@@ -54,3 +54,9 @@ secrets:
     private_key: redis_ca_key
     export:
     - session: $FLASK_SESSION # export the session CA certificate to client session
+
+
+security:
+  attestation:
+    tolerate: [debug-mode, hyperthreading, outdated-tcb]
+    ignore_advisories: "*"
