@@ -179,6 +179,8 @@ source myenv
 docker-compose up
 ```
 
+Please note that some images are not publicly available. Follow the instructions outlined in the [official documentation](https://sconedocs.github.io/SCONE_Curated_Images/#login-in) to get access to those images. If you already have access to the gitlab instance of scone available under gitlab.scontain.com, the commands will work right away.
+
 We use a public instance of SCONE CAS.
 
 ### Testing the service
