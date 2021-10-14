@@ -13,7 +13,7 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 
 # CONFIG Parameters (might change)
 
-export IMAGE=${IMAGE:-registry.scontain.com:5050/clenimar/network-shield-demo/flask-restapi:0.1}
+export IMAGE=${IMAGE:-registry.scontain.com:5050/clenimar/network-shield-demo/client:0.1}
 export SCONE_CAS_ADDR="5-5-0.scone-cas.cf"
 export DEVICE="/dev/sgx/enclave"
 
@@ -38,7 +38,7 @@ mkdir native-files/
 mkdir encrypted-files/
 mkdir fspf-file/
 cp fspf.sh fspf-file
-cp rest_api.py native-files/
+cp client.py native-files/
 
 # ensure that we have an up-to-date image
 docker pull $CLI_IMAGE

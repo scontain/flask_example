@@ -81,4 +81,4 @@ api.add_resource(Score, '/score/<string:patient_id>')
 
 if __name__ == '__main__':
     app.debug = False
-    app.run(host='0.0.0.0', port=4996, threaded=True, ssl_context=(("/tls/flask.crt", "/tls/flask.key")))
+    app.run(host='0.0.0.0', port=4996, threaded=True)

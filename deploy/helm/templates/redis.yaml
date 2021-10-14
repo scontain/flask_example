@@ -9,6 +9,9 @@ spec:
   imagePullSecrets:
      {{- toYaml . | nindent 8 }}
   {{- end }}
+  volumes:
+    - name: tls
+      emptyDir: {}
   containers:
     - name: master
       image: {{ .Values.redis.image }}
@@ -28,9 +31,12 @@ spec:
         - name: redis
           containerPort: 6379
           protocol: TCP
+      volumeMounts:
+        - name: tls
+          mountPath: /tls
       resources:
         limits:
-          sgx.k8s.io/sgx: 1
+          sgx.intel.com/epc: 10
 ---
 apiVersion: v1
 kind: Service
