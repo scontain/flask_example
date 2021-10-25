@@ -1,0 +1,10 @@
+name: $NAMESPACE
+version: "0.3"
+
+access_policy:
+  read:
+   - ANY
+  update:
+   - ANY
+  create_sessions: # defines who can write to this namespace
+   - ANY

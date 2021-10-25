@@ -1,0 +1,46 @@
+name: $NAMESPACE/network-shield-demo-client
+version: "0.3"
+
+services:
+   - name: client
+     mrenclaves: [a156d6dd1e3edee6f5cda01c66d9399ccc5c642ef87644c3cabf0774ac310440]
+     command: "python3 /fspf/encrypted-files/client.py"
+     pwd: /
+     fspf_tag: bcdec3c63a35962dbefdeba710cbab51
+     fspf_key: 4bc29e08e2b332fb37dd93ef003581fe305883ef68dfbdb65ffbc0b377bf5bbd
+     fspf_path: /fspf/fs.fspf
+     environment:
+        SERVER_ADDRESS: "http://api-server"
+        SCONE_NETWORK_SHIELD_CLIENT_1: "protected"
+        SCONE_NETWORK_SHIELD_CLIENT_1_DESTINATION: "TCP:api-server:4996"
+        SCONE_NETWORK_SHIELD_CLIENT_1_DESTINATION_IP: "*"
+        SCONE_NETWORK_SHIELD_CLIENT_1_IDENTITY: |
+          $$SCONE::client:privatekey$$
+          $$SCONE::client:crt$$
+        SCONE_NETWORK_SHIELD_CLIENT_1_SERVER_AUTH: |
+          $$SCONE::server-ca:crt$$
+
+security:
+  attestation:
+    tolerate: [debug-mode, hyperthreading, outdated-tcb, software-hardening-needed]
+    ignore_advisories: "*"
+
+secrets:
+  - name: client-ca-key
+    kind: private-key
+  - name: client-ca
+    kind: x509-ca
+    private_key: client-ca-key
+    export:
+    - session: $NAMESPACE/network-shield-demo-server
+  - name: client-key
+    kind: private-key
+  - name: client
+    kind: x509
+    endpoint: client
+    private_key: client-key
+    issuer: client-ca
+  - name: server-ca
+    import:
+      session: $NAMESPACE/network-shield-demo-server
+      secret: ca

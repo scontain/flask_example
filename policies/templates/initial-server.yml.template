@@ -1,0 +1,43 @@
+name: $NAMESPACE/network-shield-demo-server
+version: "0.3"
+
+services:
+   - name: flask_restapi
+     image_name: flask_restapi_image
+     mrenclaves: [a156d6dd1e3edee6f5cda01c66d9399ccc5c642ef87644c3cabf0774ac310440]
+     command: "python3 /fspf/encrypted-files/rest_api.py"
+     pwd: /
+     fspf_tag: ab78bac626b0a99fc5189ef55d13d838
+     fspf_key: 546df6738139701081eb9fe67daecea7b6fe047948a24d1dd091949a2eb18fc3
+     fspf_path: /fspf/fs.fspf
+
+images:
+   - name: flask_restapi_image
+     injection_files:
+        - path: /tls/redis-ca.crt
+          content: $$SCONE::redis_ca_cert.chain$$
+        - path: /tls/client.crt
+          content: $$SCONE::redis_client_cert.crt$$
+        - path: /tls/client.key
+          content: $$SCONE::redis_client_cert.key$$
+
+# Import client credentials from redis session.
+secrets:
+    - name: redis_client_key
+      import:
+        session: $NAMESPACE/network-shield-demo-redis
+        secret: redis_client_key
+    - name: redis_client_cert
+      import:
+        session: $NAMESPACE/network-shield-demo-redis
+        secret: redis_client_cert
+    - name: redis_ca_cert
+      import:
+        session: $NAMESPACE/network-shield-demo-redis
+        secret: redis_ca_cert
+
+security:
+  attestation:
+    tolerate: [debug-mode, hyperthreading, outdated-tcb, software-hardening-needed]
+    ignore_advisories: "*"
+
