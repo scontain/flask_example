@@ -25,6 +25,23 @@ scone:
   client_session: "network-shield-demo-client/client"
   cas: "5-5-0.scone-cas.cf"
 
+# Choose how to access SGX hardware through a Device Plugin.
+# Options:
+#   scone: Use SCONE SGX device plugin
+#   azure: Use Azure's SGX device plugin
+#   disabled: Don't use any plugin. Run privileged containers that can read
+#     the host's /dev.
+useSGXDevPlugin: "scone"
+
+# If useSGXDevPlugin is set to "azure", specify how much
+# EPM (in MiB) is required by the pod.
+sgxEpcMem: 8
+
+# If useSGXDevPlugin is set to "disabled", specify the path
+# for the SGX device in the host: /dev/isgx, /dev/sgx/enclave
+# or /dev/sgx_enclave.
+sgxDevicePath: /dev/isgx
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -55,10 +72,6 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
-resources:
-  limits:
-    "sgx.intel.com/epc": 10
 
 nodeSelector: {}
 

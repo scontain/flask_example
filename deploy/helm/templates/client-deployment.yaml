@@ -11,11 +11,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-server
+  name: api-client
   labels:
     {{- include "example.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "example.selectorLabels" . | nindent 6 }}
@@ -37,7 +37,7 @@ spec:
             path: {{ .Values.sgxDevicePath }}
       {{- end }}
       containers:
-        - name: api
+        - name: client
           securityContext:
           {{- if .Values.securityContext }}
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -48,20 +48,12 @@ spec:
           {{- else if eq .Values.useSGXDevPlugin "disabled" }}
             privileged: true
           {{- end }}
-          image: "{{ .Values.image }}"
+          image: "{{ .Values.client_image }}"
           imagePullPolicy: Always
           command: ["python3"]
-          ports:
-            - name: api
-              containerPort: {{ .Values.port }}
-              protocol: TCP
           env:
-            - name: REDIS_HOST
-              value: redis
-            - name: REDIS_PORT
-              value: {{ .Values.redis.service.port | quote }}
             - name: SCONE_CONFIG_ID
-              value: {{ .Values.scone.api_session }}
+              value: {{ .Values.scone.client_session }}
             - name: SCONE_CAS_ADDR
               value: {{ .Values.scone.cas }}
             - name: SCONE_LAS_ADDR
