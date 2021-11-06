@@ -7,8 +7,8 @@ services:
      mrenclaves: [a156d6dd1e3edee6f5cda01c66d9399ccc5c642ef87644c3cabf0774ac310440]
      command: "python3 /fspf/encrypted-files/rest_api.py"
      pwd: /
-     fspf_tag: ab78bac626b0a99fc5189ef55d13d838
-     fspf_key: 546df6738139701081eb9fe67daecea7b6fe047948a24d1dd091949a2eb18fc3
+     fspf_tag: $SCONE_FSPF_TAG_SERVER
+     fspf_key: $SCONE_FSPF_KEY_SERVER
      fspf_path: /fspf/fs.fspf
      environment:
          SCONE_NETWORK_SHIELD: "protected"
