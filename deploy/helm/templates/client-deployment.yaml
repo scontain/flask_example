@@ -14,6 +14,7 @@ metadata:
   name: api-client
   labels:
     {{- include "example.labels" . | nindent 4 }}
+    app: client
 spec:
   replicas: 1
   selector:
@@ -50,6 +51,7 @@ spec:
           {{- end }}
           image: "{{ .Values.client_image }}"
           imagePullPolicy: Always
+          tty: true
           command: ["python3"]
           env:
             - name: SCONE_CONFIG_ID

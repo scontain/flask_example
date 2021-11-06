@@ -14,6 +14,7 @@ metadata:
   name: api-server
   labels:
     {{- include "example.labels" . | nindent 4 }}
+    app: server
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -49,6 +50,7 @@ spec:
             privileged: true
           {{- end }}
           image: "{{ .Values.image }}"
+          tty: true
           imagePullPolicy: Always
           command: ["python3"]
           ports:

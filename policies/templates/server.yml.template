@@ -11,7 +11,6 @@ services:
      fspf_key: $SCONE_FSPF_KEY_SERVER
      fspf_path: /fspf/fs.fspf
      environment:
-         SCONE_NETWORK_SHIELD: "protected"
          SCONE_NETWORK_SHIELD_SERVER_1: "protected"
          SCONE_NETWORK_SHIELD_SERVER_1_PORT: "TCP:4996"
          SCONE_NETWORK_SHIELD_SERVER_1_IDENTITY: |
