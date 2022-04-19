@@ -17,7 +17,7 @@ spec:
         mountPath: /scripts
       env:
         - name: API_ENDPOINT
-          value: https://{{ include "example.fullname" . }}
+          value: http://{{ include "example.fullname" . }}:{{ .Values.service.port }}
   volumes:
   - name: scripts
     configMap:
@@ -41,9 +41,10 @@ data:
     apk add curl
     echo "sending requests to $API_ENDPOINT"
     PID=$RANDOM$RANDOM$RANDOM
-    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X POST $API_ENDPOINT/patient/patient_$PID -d "fname=Jane&lname=Doe&address='123 Main Street'&city=Richmond&state=Washington&ssn=123-223-2345&email=nr@aaa.com&dob=01/01/2010&contactphone=123-234-3456&drugallergies='Sulpha, Penicillin, Tree Nut'&preexistingconditions='diabetes, hypertension, asthma'&dateadmitted=01/05/2010&insurancedetails='Primera Blue Cross'")
+    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X POST $API_ENDPOINT/patient/patient_$PID -d "fname=Jane&lname=Doe&address='123 Main Street'&city=Richmond&iban=DE12345678&ssn=123-223-2345&email=nr@aaa.com'")
     check_res_code $RES
     RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/patient/patient_$PID)
     check_res_code $RES
     RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/score/patient_$PID)
     check_res_code $RES
+    curl -k -X GET $API_ENDPOINT/patient/patient_$PID

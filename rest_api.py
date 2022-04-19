@@ -16,7 +16,7 @@ REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
 db = redis.StrictRedis(
    host=REDIS_HOST,
    port=REDIS_PORT,
-   ssl=True,
+   ssl=False,
    ssl_keyfile='/tls/client.key',
    ssl_certfile='/tls/client.crt',
    ssl_cert_reqs="required",
@@ -45,15 +45,9 @@ class Patient(Resource):
             "lname": request.form['lname'],
             "address": request.form['address'],
             "city": request.form['city'],
-            "state": request.form['state'],
+            "iban": request.form['iban'],
             "ssn": request.form['ssn'],
             "email": request.form['email'],
-            "dob": request.form['dob'],
-            "contactphone": request.form['contactphone'],
-            "drugallergies": request.form['drugallergies'],
-            "preexistingconditions": request.form['preexistingconditions'],
-            "dateadmitted": request.form['dateadmitted'],
-            "insurancedetails": request.form['insurancedetails'],
             "score": random.random()
             }).encode('utf-8')
             try:
@@ -75,10 +69,22 @@ class Score(Resource):
         return Response({"error": "unknown patient"}, status=404, mimetype='application/json')
 
 
+class Listkeys(Resource):
+    def get(self):
+        all_keys = db.keys(pattern="*")
+        if all_keys is not None:
+            all_data = [db.get(k) for k in all_keys]
+            all_data_d = [json.loads(v.decode('utf-8')) for v in all_data]
+            score = json.dumps(all_data_d)
+            return jsonify({"keys": all_data_d})
+        return Response({"error": "no keys"}, status=404, mimetype='application/json')
+
 api.add_resource(Patient, '/patient/<string:patient_id>')
 api.add_resource(Score, '/score/<string:patient_id>')
+api.add_resource(Listkeys, '/keys')
 
 
 if __name__ == '__main__':
     app.debug = False
-    app.run(host='0.0.0.0', port=4996, threaded=True, ssl_context=(("/tls/flask.crt", "/tls/flask.key")))
+    # app.run(host='0.0.0.0', port=4996, threaded=True, ssl_context=(("/tls/flask.crt", "/tls/flask.key")))
+    app.run(host='0.0.0.0', port=4996, threaded=True)

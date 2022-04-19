@@ -9,7 +9,7 @@ services:
      command: "python /fspf/encrypted-files/rest_api.py"
      environment:
       SCONE_MODE: hw
-      SCONE_LOG: "7"
+      SCONE_LOG: "DEBUG"
      pwd: /
      fspf_tag: $SCONE_FSPF_TAG
      fspf_key: $SCONE_FSPF_KEY

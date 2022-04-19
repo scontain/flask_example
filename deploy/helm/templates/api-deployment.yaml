@@ -21,12 +21,13 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        # FIXME: we need a init container to wait until the redis is ready
         - name: api
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image }}"
           imagePullPolicy: Always
-          command: ["python3"]
+          #command: ["python3"]
           ports:
             - name: api
               containerPort: {{ .Values.port }}

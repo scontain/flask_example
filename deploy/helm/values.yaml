@@ -4,13 +4,13 @@
 
 # configure redis
 redis:
-  image: sconecuratedimages/experimental:redis-6-ubuntu
+  image: redis:6.2.6-alpine
   service:
     port: 6379
 
 replicaCount: 1
 
-image: sconecuratedimages/application:v0.4
+image: registry.scontain.com:5050/sconecuratedimages/proximus:flask-app-native
 
 # on which port the API is listening
 port: 4996
@@ -39,7 +39,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 443
+  port: 4996
 
 ingress:
   enabled: false

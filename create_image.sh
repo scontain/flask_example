@@ -14,10 +14,10 @@ trap "echo Unexpected error! See log above; exit 1" ERR
 # CONFIG Parameters (might change)
 
 export IMAGE=${IMAGE:-flask_restapi_image}
-export SCONE_CAS_ADDR="4-2-1.scone-cas.cf"
+export SCONE_CAS_ADDR="scone-cas.cf"
 export DEVICE="/dev/sgx"
 
-export CAS_MRENCLAVE="4cd0fe54d3d8d787553b7dac7347012682c402220acd062e4d0da3bbe10a1c2c"
+export CAS_MRENCLAVE="3061b9feb7fa67f3815336a085f629a13f04b0a1667c93b14ff35581dc8271e4"
 
 export CLI_IMAGE="registry.scontain.com:5050/sconecuratedimages/kubernetes:hello-k8s-scone0.1"
 export PYTHON_IMAGE="registry.scontain.com:5050/sconecuratedimages/apps:python-3.7.3-alpine3.10-scone4.2.1"
