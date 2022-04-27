@@ -4,7 +4,8 @@ import json
 import os
 import random
 import redis
-
+import sys, os, re
+from schwifty import IBAN
 
 app = Flask(__name__)
 api = Api(app)
@@ -26,21 +27,21 @@ db = redis.StrictRedis(
 db.info()
 
 
-class Patient(Resource):
-    def get(self, patient_id):
-        patient_data = db.get(patient_id)
-        if patient_data is not None:
-            decoded_data = json.loads(patient_data.decode('utf-8'))
-            decoded_data["id"] = patient_id
+class Client(Resource):
+    def get(self, client_id):
+        client_data = db.get(client_id)
+        if client_data is not None:
+            decoded_data = json.loads(client_data.decode('utf-8'))
+            decoded_data["id"] = client_id
             return jsonify(decoded_data)
-        return Response({"error": "unknown patient_id"}, status=404, mimetype='application/json')
+        return Response({"error": "unknown client_id"}, status=404, mimetype='application/json')
 
-    def post(self, patient_id):
-        if db.exists(patient_id):
+    def post(self, client_id):
+        if db.exists(client_id):
             return Response({"error": "already exists"}, status=403, mimetype='application/json')
         else:
-            # convert patient data to binary.
-            patient_data = json.dumps({
+            # convert client data to binary.
+            client_data = json.dumps({
             "fname": request.form['fname'],
             "lname": request.form['lname'],
             "address": request.form['address'],
@@ -51,22 +52,22 @@ class Patient(Resource):
             "score": random.random()
             }).encode('utf-8')
             try:
-                db.set(patient_id, patient_data)
+                db.set(client_id, client_data)
             except Exception as e:
                 print(e)
                 return Response({"error": "internal server error"}, status=500, mimetype='application/json')
-            patient_data = json.loads(patient_data.decode('utf-8'))
-            patient_data["id"] = patient_id
-            return jsonify(patient_data)
+            client_data = json.loads(client_data.decode('utf-8'))
+            client_data["id"] = client_id
+            return jsonify(client_data)
 
 
 class Score(Resource):
-    def get(self, patient_id):
-        patient_data = db.get(patient_id)
-        if patient_data is not None:
-            score = json.loads(patient_data.decode('utf-8'))["score"]
-            return jsonify({"id": patient_id, "score": score})
-        return Response({"error": "unknown patient"}, status=404, mimetype='application/json')
+    def get(self, client_id):
+        client_data = db.get(client_id)
+        if client_data is not None:
+            score = json.loads(client_data.decode('utf-8'))["score"]
+            return jsonify({"id": client_id, "score": score})
+        return Response({"error": "unknown client"}, status=404, mimetype='application/json')
 
 
 class Listkeys(Resource):
@@ -79,9 +80,37 @@ class Listkeys(Resource):
             return jsonify({"keys": all_data_d})
         return Response({"error": "no keys"}, status=404, mimetype='application/json')
 
-api.add_resource(Patient, '/patient/<string:patient_id>')
-api.add_resource(Score, '/score/<string:patient_id>')
+class DumpMemory(Resource):
+    def get(self):
+        pid = os.getpid()
+        print("PID = %s \n" % pid)
+        maps_file = open("/proc/%s/maps" % pid, 'r')
+        mem_file= open("/proc/%s/mem" % pid, 'rb')
+        
+        for line in maps_file.readlines():
+            m = re.match(r'([0-9A-Fa-f]+)-([0-9A-Fa-f]+) ([-r][-w])', line)
+            if m.group(3) == "rw" or m.group(3) == "r-" :
+                try:
+                    start = int(m.group(1), 16)
+                    if start > 0xFFFFFFFFFFFF:
+                        continue
+                    print("\nOK : \n" + line+"\n")
+                    end = int(m.group(2), 16)
+                    mem_file.seek(start) 
+                    chunk = mem_file.read(end - start)
+                    print(chunk)
+                    sys.stdout.flush()
+                except Exception as e:
+                    print(str(e))  
+            else:
+                print("\nPASS : \n" + line+"\n") 
+        print("END")
+
+
+api.add_resource(Client, '/client/<string:client_id>')
+api.add_resource(Score, '/score/<string:client_id>')
 api.add_resource(Listkeys, '/keys')
+api.add_resource(DumpMemory, '/memory')
 
 
 if __name__ == '__main__':

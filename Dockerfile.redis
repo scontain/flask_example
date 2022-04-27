@@ -1,0 +1,3 @@
+FROM registry.scontain.com:5050/sconecuratedimages/proximus:redis-6-prd
+RUN apk add python3
+COPY dumpmemory.py /dumpmemory.py

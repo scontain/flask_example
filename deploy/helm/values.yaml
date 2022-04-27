@@ -4,13 +4,13 @@
 
 # configure redis
 redis:
-  image: redis:6.2.6-alpine
+  image: registry.scontain.com:5050/sconecuratedimages/proximus:redis-6-prd-demo
   service:
     port: 6379
 
 replicaCount: 1
 
-image: registry.scontain.com:5050/sconecuratedimages/proximus:flask-app-native
+image: registry.scontain.com:5050/sconecuratedimages/proximus:flask-prd
 
 # on which port the API is listening
 port: 4996
@@ -57,6 +57,7 @@ ingress:
 resources:
   limits:
     "sgx.k8s.io/sgx": 1
+    kubernetes.azure.com/sgx_epc_mem_in_MiB: 16
 
 nodeSelector: {}
 

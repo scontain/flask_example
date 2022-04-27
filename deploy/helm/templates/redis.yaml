@@ -13,24 +13,29 @@ spec:
     - name: master
       image: {{ .Values.redis.image }}
       imagePullPolicy: Always
+      command: ["redis-server"]
+      args: ["--port 6379", "--protected-mode no"]
       env:
         - name: MASTER
           value: "true"
-        - name: SCONE_CONFIG_ID
-          value: {{ .Values.scone.redis_session }}
-        - name: SCONE_CAS_ADDR
-          value: {{ .Values.scone.cas }}
-        - name: SCONE_LAS_ADDR
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
+        - name: SCONE_VERSION
+          value: "1"
+        # - name: SCONE_CONFIG_ID
+        #   value: {{ .Values.scone.redis_session }}
+        # - name: SCONE_CAS_ADDR
+        #   value: {{ .Values.scone.cas }}
+        # - name: SCONE_LAS_ADDR
+        #   valueFrom:
+        #     fieldRef:
+        #       fieldPath: status.hostIP
       ports:
         - name: redis
           containerPort: 6379
           protocol: TCP
       resources:
-        limits:
-          sgx.k8s.io/sgx: 1
+        {{- toYaml .Values.resources | nindent 8 }}
+      securityContext:
+        privileged: true
 ---
 apiVersion: v1
 kind: Service

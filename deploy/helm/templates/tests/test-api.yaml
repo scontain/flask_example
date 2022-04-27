@@ -41,10 +41,9 @@ data:
     apk add curl
     echo "sending requests to $API_ENDPOINT"
     PID=$RANDOM$RANDOM$RANDOM
-    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X POST $API_ENDPOINT/patient/patient_$PID -d "fname=Jane&lname=Doe&address='123 Main Street'&city=Richmond&iban=DE12345678&ssn=123-223-2345&email=nr@aaa.com'")
+    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X POST $API_ENDPOINT/client/client_$PID -d "fname=Jane&lname=Doe&address='123 Main Street'&city=Richmond&iban=DE12345678&ssn=123-223-2345&email=nr@aaa.com'")
     check_res_code $RES
-    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/patient/patient_$PID)
+    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/client/client_$PID)
     check_res_code $RES
-    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/score/patient_$PID)
+    RES=$(curl -k -o /dev/null -s -w "%{http_code}\n" -X GET $API_ENDPOINT/score/client_$PID)
     check_res_code $RES
-    curl -k -X GET $API_ENDPOINT/patient/patient_$PID

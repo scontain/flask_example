@@ -37,14 +37,14 @@ spec:
               value: redis
             - name: REDIS_PORT
               value: {{ .Values.redis.service.port | quote }}
-            - name: SCONE_CONFIG_ID
-              value: {{ .Values.scone.flask_session }}
-            - name: SCONE_CAS_ADDR
-              value: {{ .Values.scone.cas }}
-            - name: SCONE_LAS_ADDR
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+            # - name: SCONE_CONFIG_ID
+            #   value: {{ .Values.scone.flask_session }}
+            # - name: SCONE_CAS_ADDR
+            #   value: {{ .Values.scone.cas }}
+            # - name: SCONE_LAS_ADDR
+            #   valueFrom:
+            #     fieldRef:
+            #       fieldPath: status.hostIP
             - name: SCONE_LOG
               value: "7"
             - name: SCONE_VERSION
