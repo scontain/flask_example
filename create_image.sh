@@ -58,7 +58,7 @@ fi
 # attest cas before uploading the session file, accept CAS running in debug
 # mode (-d) and outdated TCB (-G)
 docker run --device=$DEVICE -it $CLI_IMAGE sh -c "
-scone cas attest -G --only_for_testing-debug  $SCONE_CAS_ADDR $CAS_MRENCLAVE >/dev/null \
+scone cas attest -G --only_for_testing-debug --only_for_testing-ignore-signer  $SCONE_CAS_ADDR $CAS_MRENCLAVE >/dev/null \
 &&  scone cas show-certificate" > cas-ca.pem
 
 # create encrypte filesystem and fspf (file system protection file)
